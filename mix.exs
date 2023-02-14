@@ -39,6 +39,9 @@ defmodule Terrible.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:ash, "2.6.3"},
+      {:ash_phoenix, "1.2.5"},
+      {:ash_postgres, "1.3.10"},
       {:credo, "1.6.7", only: [:dev, :test], runtime: false},
       {:ecto_sql, "3.9.2"},
       {:esbuild, "0.6.1", runtime: Mix.env() == :dev},

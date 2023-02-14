@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :ash, :use_all_identities_in_manage_relationship?, false
+
 config :terrible,
   ecto_repos: [Terrible.Repo]
 
