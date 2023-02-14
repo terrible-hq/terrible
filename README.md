@@ -1,5 +1,7 @@
 # Terrible
 
+[![gh-actions](https://github.com/terrible-hq/terrible/workflows/Continuous%20Integration/badge.svg)](https://github.com/terrible-hq/terrible/actions?workflow=Continuous+Integration)
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
