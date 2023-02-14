@@ -39,6 +39,7 @@ defmodule Terrible.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:credo, "1.6.7", only: [:dev, :test], runtime: false},
       {:ecto_sql, "3.9.2"},
       {:esbuild, "0.6.1", runtime: Mix.env() == :dev},
       {:finch, "0.14.0"},
@@ -75,8 +76,8 @@ defmodule Terrible.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
-      lint: ["format"],
-      "lint.ci": ["format --check-formatted"]
+      lint: ["format", "credo"],
+      "lint.ci": ["format --check-formatted", "credo"]
     ]
   end
 end

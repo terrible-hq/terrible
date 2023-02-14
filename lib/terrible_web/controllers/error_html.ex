@@ -1,4 +1,6 @@
 defmodule TerribleWeb.ErrorHTML do
+  @moduledoc false
+
   use TerribleWeb, :html
 
   # If you want to customize your error pages,
