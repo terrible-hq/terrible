@@ -9,6 +9,10 @@ import Config
 
 config :ash, :use_all_identities_in_manage_relationship?, false
 
+config :terrible, :ash_apis, [
+  Terrible.Budgeting
+]
+
 config :terrible,
   ecto_repos: [Terrible.Repo]
 
