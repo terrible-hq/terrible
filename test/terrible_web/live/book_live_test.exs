@@ -49,6 +49,10 @@ defmodule TerribleWeb.BookLiveTest do
 
       assert index_live
              |> form("#book-form", book: @invalid_attrs)
+             |> render_change() =~ "is required"
+
+      assert index_live
+             |> form("#book-form", book: @invalid_attrs)
              |> render_submit() =~ "is required"
     end
 
@@ -78,6 +82,10 @@ defmodule TerribleWeb.BookLiveTest do
 
       assert index_live |> element("#books-#{book.id} a", "Edit") |> render_click() =~
                "Edit Book"
+
+      assert index_live
+             |> form("#book-form", book: @invalid_attrs)
+             |> render_change() =~ "is required"
 
       assert index_live
              |> form("#book-form", book: @invalid_attrs)
@@ -125,6 +133,10 @@ defmodule TerribleWeb.BookLiveTest do
 
       assert show_live |> element("a", "Edit") |> render_click() =~
                "Edit Book"
+
+      assert show_live
+             |> form("#book-form", book: @invalid_attrs)
+             |> render_change() =~ "is required"
 
       assert show_live
              |> form("#book-form", book: @invalid_attrs)
