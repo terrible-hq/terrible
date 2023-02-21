@@ -57,7 +57,7 @@ defmodule TerribleWeb.BookLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"book" => book_params}, socket) do
-    {:noreply, assign(socket, :from, AshPhoenix.Form.validate(socket.assigns.form, book_params))}
+    {:noreply, assign(socket, :form, AshPhoenix.Form.validate(socket.assigns.form, book_params))}
   end
 
   def handle_event("save", %{"book" => book_params}, socket) do
