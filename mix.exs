@@ -50,7 +50,7 @@ defmodule Terrible.MixProject do
       {:gettext, "0.22.0"},
       {:heroicons, "0.5.2"},
       {:jason, "1.4.0"},
-      {:phoenix, "1.7.0-rc.2", override: true},
+      {:phoenix, "1.7.0", override: true},
       {:phoenix_ecto, "4.4.0"},
       {:phoenix_html, "3.3.0"},
       {:phoenix_live_dashboard, "0.7.2"},
