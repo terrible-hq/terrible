@@ -3,6 +3,7 @@ defmodule TerribleWeb.BookLive.FormComponent do
 
   alias Terrible.Budgeting
   alias Terrible.Budgeting.Book
+  alias Terrible.Budgeting.CreateBook
 
   @impl true
   def render(assigns) do
@@ -61,26 +62,29 @@ defmodule TerribleWeb.BookLive.FormComponent do
   end
 
   def handle_event("save", %{"book" => book_params}, socket) do
-    case AshPhoenix.Form.submit(socket.assigns.form, params: book_params) do
-      {:ok, _book} ->
-        message =
-          case socket.assigns.form.type do
-            :create ->
-              "Book created successfully"
+    form = AshPhoenix.Form.validate(socket.assigns.form, book_params)
 
-            :update ->
-              "Book updated successfully"
-          end
+    if form.valid? do
+      action = socket.assigns.form.type
 
-        socket =
-          socket
-          |> put_flash(:info, message)
-          |> push_navigate(to: socket.assigns.navigate)
+      case action do
+        :update ->
+          AshPhoenix.Form.submit(socket.assigns.form, params: book_params)
 
-        {:noreply, socket}
+        :create ->
+          book_params
+          |> Map.get("name")
+          |> CreateBook.run!()
+      end
 
-      {:error, form} ->
-        {:noreply, assign(socket, form: form)}
+      socket =
+        socket
+        |> put_flash(:info, "Book #{action}d successfully")
+        |> push_navigate(to: socket.assigns.navigate)
+
+      {:noreply, socket}
+    else
+      {:noreply, assign(socket, form: form)}
     end
   end
 end
