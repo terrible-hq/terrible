@@ -8,5 +8,7 @@ defmodule Terrible.Budgeting.Registry do
 
   entries do
     entry Terrible.Budgeting.Book
+    entry Terrible.Budgeting.Budget
+    entry Terrible.Budgeting.Category
   end
 end

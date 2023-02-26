@@ -1,16 +1,18 @@
-defmodule Terrible.Budgeting.Book do
+defmodule Terrible.Budgeting.Category do
   @moduledoc """
-  A Book is the catch-all container for a budget.
+  A category is a group of envelopes
   """
 
   use Ash.Resource, data_layer: AshPostgres.DataLayer
-
-  alias Terrible.Budgeting.{Budget, Category}
 
   attributes do
     uuid_primary_key :id
 
     attribute :name, :string do
+      allow_nil? false
+    end
+
+    attribute :book_id, :uuid do
       allow_nil? false
     end
 
@@ -21,12 +23,12 @@ defmodule Terrible.Budgeting.Book do
   actions do
     defaults [:read, :create, :update, :destroy]
 
-    read :by_id do
+    read :by_book_id do
       argument :id, :uuid, allow_nil?: false
 
       get? true
 
-      filter expr(id == ^arg(:id))
+      filter expr(book_id == ^arg(:id))
     end
   end
 
@@ -36,16 +38,21 @@ defmodule Terrible.Budgeting.Book do
     define :read_all, action: :read
     define :update, action: :update
     define :destroy, action: :destroy
-    define :get_by_id, args: [:id], action: :by_id
+    define :get_by_book_id, args: [:id], action: :by_book_id
   end
 
   relationships do
-    has_many :budgets, Budget
-    has_many :categories, Category
+    belongs_to :book, Terrible.Budgeting.Book do
+      allow_nil? false
+    end
   end
 
   postgres do
-    table "books"
+    table "categories"
     repo Terrible.Repo
+
+    custom_indexes do
+      index ["book_id"]
+    end
   end
 end

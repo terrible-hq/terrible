@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :ash, allow_flow: true
+
 config :ash, :use_all_identities_in_manage_relationship?, false
 
 config :terrible, :ash_apis, [
