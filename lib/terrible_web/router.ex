@@ -23,8 +23,7 @@ defmodule TerribleWeb.Router do
     live "/books/new", BookLive.Index, :new
     live "/books/:id/edit", BookLive.Index, :edit
 
-    live "/books/:id", BookLive.Show, :show
-    live "/books/:id/show/edit", BookLive.Show, :edit
+    live "/books/:book_id/budgets/:name", BudgetLive.Show, :show
   end
 
   # Other scopes may use custom stacks.

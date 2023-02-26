@@ -6,6 +6,7 @@ defmodule Terrible.Budgeting.CreateBook.Steps.CreateInitialBudgets do
   use Ash.Flow.Step
 
   alias Terrible.Budgeting.{Book, Budget}
+  alias Terrible.Utils
 
   def run(%Book{} = book, _opts, _context) do
     current_month = Date.utc_today() |> Date.beginning_of_month()
@@ -17,14 +18,8 @@ defmodule Terrible.Budgeting.CreateBook.Steps.CreateInitialBudgets do
 
     budgets =
       Enum.map([current_month, next_month], fn month ->
-        name =
-          month
-          |> Date.to_string()
-          |> String.slice(0..6)
-          |> String.replace("-", "")
-
         Budget.create!(%{
-          name: name,
+          name: Utils.get_budget_name(month),
           month: month,
           book_id: book.id
         })

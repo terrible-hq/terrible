@@ -2,10 +2,16 @@ defmodule TerribleWeb.BookLive.Index do
   use TerribleWeb, :live_view
 
   alias Terrible.Budgeting.Book
+  alias Terrible.Utils
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :books, Book.read_all!())}
+    socket =
+      socket
+      |> assign(:books, Book.read_all!())
+      |> assign(:budget_name, Utils.get_budget_name(Date.utc_today()))
+
+    {:ok, socket}
   end
 
   @impl true
