@@ -7,11 +7,15 @@
   </:actions>
 </.header>
 
-<.table id="books" rows={@books} row_click={&JS.navigate(~p"/books/#{&1}")}>
+<.table
+  id="books"
+  rows={@books}
+  row_click={&JS.navigate(~p"/books/#{&1}/budgets/#{@budget_name}")}
+>
   <:col :let={book} label="Name"><%= book.name %></:col>
   <:action :let={book}>
     <div class="sr-only">
-      <.link navigate={~p"/books/#{book}"}>Show</.link>
+      <.link navigate={~p"/books/#{book}/budgets/#{@budget_name}"}>Show</.link>
     </div>
     <.link patch={~p"/books/#{book}/edit"}>Edit</.link>
   </:action>

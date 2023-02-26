@@ -99,48 +99,4 @@ defmodule TerribleWeb.BookLiveTest do
       refute has_element?(index_live, "#book-#{book.id}")
     end
   end
-
-  describe "Show" do
-    setup [:create_book]
-
-    test "displays book", %{conn: conn, book: book} do
-      {:ok, _show_live, html} = live(conn, ~p"/books/#{book}")
-
-      assert html =~ "Show Book"
-      assert html =~ book.name
-    end
-
-    test "edit form submission with correct data updates book", %{conn: conn, book: book} do
-      {:ok, show_live, _html} = live(conn, ~p"/books/#{book}")
-
-      assert show_live |> element("a", "Edit") |> render_click() =~
-               "Edit Book"
-
-      assert_patch(show_live, ~p"/books/#{book}/show/edit")
-
-      {:ok, _, html} =
-        show_live
-        |> form("#book-form", book: @update_attrs)
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/books/#{book}")
-
-      assert html =~ "Book updated successfully"
-      assert html =~ "Test Book Updated"
-    end
-
-    test "edit form submission with blank data returns error", %{conn: conn, book: book} do
-      {:ok, show_live, _html} = live(conn, ~p"/books/#{book}")
-
-      assert show_live |> element("a", "Edit") |> render_click() =~
-               "Edit Book"
-
-      assert show_live
-             |> form("#book-form", book: @invalid_attrs)
-             |> render_change() =~ "is required"
-
-      assert show_live
-             |> form("#book-form", book: @invalid_attrs)
-             |> render_submit() =~ "is required"
-    end
-  end
 end

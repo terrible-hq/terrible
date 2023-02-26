@@ -4,7 +4,8 @@ defmodule Terrible.BudgetingFixtures do
   entities via the `Terrible.Budgeting` context.
   """
 
-  alias Terrible.Budgeting.Book
+  alias Terrible.Budgeting.{Book, Budget}
+  alias Terrible.Utils
 
   @doc """
   Generate a book.
@@ -18,5 +19,24 @@ defmodule Terrible.BudgetingFixtures do
       |> Book.create()
 
     book
+  end
+
+  @doc """
+  Generate a Budget.
+  """
+  def budget_fixture(attrs \\ %{}) do
+    current_month = Date.utc_today() |> Date.beginning_of_month()
+    book_id = Map.get(attrs, :book_id) || book_fixture().id
+
+    {:ok, budget} =
+      attrs
+      |> Enum.into(%{
+        name: Utils.get_budget_name(current_month),
+        month: current_month,
+        book_id: book_id
+      })
+      |> Budget.create()
+
+    budget
   end
 end
