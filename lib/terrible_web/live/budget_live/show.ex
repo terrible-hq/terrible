@@ -1,7 +1,7 @@
 defmodule TerribleWeb.BudgetLive.Show do
   use TerribleWeb, :live_view
 
-  alias Terrible.Budgeting.{Book, Budget}
+  alias Terrible.Budgeting.{Book, Budget, Category}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -16,10 +16,12 @@ defmodule TerribleWeb.BudgetLive.Show do
   defp apply_action(socket, :show, %{"book_id" => book_id, "name" => name}) do
     book = Book.get_by_id!(book_id)
     budget = Budget.get_by_book_id_and_name!(book_id, name)
+    categories = Category.list_by_book_id!(book.id)
 
     socket
     |> assign(:page_title, "Budget | #{book.name}")
     |> assign(:book, book)
     |> assign(:budget, budget)
+    |> assign(:categories, categories)
   end
 end

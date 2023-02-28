@@ -10,5 +10,6 @@ defmodule Terrible.Budgeting.Registry do
     entry Terrible.Budgeting.Book
     entry Terrible.Budgeting.Budget
     entry Terrible.Budgeting.Category
+    entry Terrible.Budgeting.Envelope
   end
 end
