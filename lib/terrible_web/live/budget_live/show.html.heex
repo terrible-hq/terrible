@@ -3,3 +3,11 @@
 </.header>
 
 <h1>Welcome!</h1>
+
+<%= for category <- @categories do %>
+  <.live_component
+    module={TerribleWeb.BudgetLive.CategoryComponent}
+    id={category.id}
+    category={category}
+  />
+<% end %>

@@ -7,7 +7,11 @@ defmodule Terrible.Budgeting.CreateBook do
   use Ash.Flow, otp_app: :terrible
 
   alias Terrible.Budgeting.Book
-  alias Terrible.Budgeting.CreateBook.Steps.CreateInitialBudgets
+
+  alias Terrible.Budgeting.CreateBook.Steps.{
+    CreateInitialBudgets,
+    CreateInitialCategoriesEnvelopes
+  }
 
   flow do
     api Terrible.Budgeting
@@ -27,6 +31,10 @@ defmodule Terrible.Budgeting.CreateBook do
     end
 
     custom :create_initial_budgets, CreateInitialBudgets do
+      input result(:create_book)
+    end
+
+    custom :create_initial_categories_and_envelopes, CreateInitialCategoriesEnvelopes do
       input result(:create_book)
     end
   end
