@@ -5,6 +5,8 @@ defmodule Terrible.Budgeting.Category do
 
   use Ash.Resource, data_layer: AshPostgres.DataLayer
 
+  alias Terrible.Budgeting.{Book, Envelope}
+
   attributes do
     uuid_primary_key :id
 
@@ -40,9 +42,11 @@ defmodule Terrible.Budgeting.Category do
   end
 
   relationships do
-    belongs_to :book, Terrible.Budgeting.Book do
+    belongs_to :book, Book do
       allow_nil? false
     end
+
+    has_many :envelopes, Envelope
   end
 
   postgres do

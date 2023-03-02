@@ -11,5 +11,6 @@ defmodule Terrible.Budgeting.Registry do
     entry Terrible.Budgeting.Budget
     entry Terrible.Budgeting.Category
     entry Terrible.Budgeting.Envelope
+    entry Terrible.Budgeting.MonthlyEnvelope
   end
 end
