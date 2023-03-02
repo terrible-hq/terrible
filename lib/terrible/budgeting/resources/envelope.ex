@@ -11,7 +11,7 @@ defmodule Terrible.Budgeting.Envelope do
 
   use Ash.Resource, data_layer: AshPostgres.DataLayer
 
-  alias Terrible.Budgeting.Category
+  alias Terrible.Budgeting.{Category, MonthlyEnvelope}
 
   attributes do
     uuid_primary_key :id
@@ -53,6 +53,8 @@ defmodule Terrible.Budgeting.Envelope do
     belongs_to :category, Category do
       allow_nil? false
     end
+
+    has_many :monthly_envelopes, MonthlyEnvelope
   end
 
   postgres do

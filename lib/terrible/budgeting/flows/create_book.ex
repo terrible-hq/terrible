@@ -30,12 +30,15 @@ defmodule Terrible.Budgeting.CreateBook do
       input %{name: arg(:name)}
     end
 
-    custom :create_initial_budgets, CreateInitialBudgets do
+    custom :create_initial_categories_and_envelopes, CreateInitialCategoriesEnvelopes do
       input result(:create_book)
     end
 
-    custom :create_initial_categories_and_envelopes, CreateInitialCategoriesEnvelopes do
-      input result(:create_book)
+    custom :create_initial_budgets, CreateInitialBudgets do
+      input %{
+        book: result(:create_book),
+        categories_envelopes: result(:create_initial_categories_and_envelopes)
+      }
     end
   end
 end

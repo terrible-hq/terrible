@@ -18,9 +18,13 @@ defmodule TerribleWeb.BudgetLive.CategoryComponent do
       </thead>
       <tbody>
         <%= for envelope <- @envelopes do %>
-          <tr>
-            <td><%= envelope.name %></td>
-          </tr>
+          <.live_component
+            module={TerribleWeb.BudgetLive.MonthlyEnvelopeComponent}
+            id={envelope.id}
+            budget={@budget}
+            category={@category}
+            envelope={envelope}
+          />
         <% end %>
       </tbody>
     </table>
