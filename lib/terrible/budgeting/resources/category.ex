@@ -30,6 +30,14 @@ defmodule Terrible.Budgeting.Category do
 
       filter expr(book_id == ^arg(:id))
     end
+
+    read :by_id do
+      argument :id, :uuid, allow_nil?: false
+
+      get? true
+
+      filter expr(id == ^arg(:id))
+    end
   end
 
   code_interface do
@@ -39,6 +47,7 @@ defmodule Terrible.Budgeting.Category do
     define :update, action: :update
     define :destroy, action: :destroy
     define :list_by_book_id, args: [:id], action: :by_book_id
+    define :get_by_id, args: [:id], action: :by_id
   end
 
   relationships do
