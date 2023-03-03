@@ -10,21 +10,40 @@ defmodule TerribleWeb.BudgetLive.CategoryComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <table>
+    <table id={"categories-#{@category.id}"}>
       <thead>
         <tr>
           <th><%= @category.name %></th>
+          <th>
+            <span>
+              <.link patch={~p"/books/#{@book}/budgets/#{@budget.name}/categories/#{@category}/edit"}>
+                Edit
+              </.link>
+            </span>
+            <%= unless @envelopes && Enum.any?(@envelopes) do %>
+              <span>
+                <.link
+                  phx-click={JS.push("delete_category", value: %{id: @category.id})}
+                  data-confirm="Are you sure?"
+                >
+                  Delete
+                </.link>
+              </span>
+            <% end %>
+          </th>
         </tr>
       </thead>
       <tbody>
-        <%= for envelope <- @envelopes do %>
-          <.live_component
-            module={TerribleWeb.BudgetLive.MonthlyEnvelopeComponent}
-            id={envelope.id}
-            budget={@budget}
-            category={@category}
-            envelope={envelope}
-          />
+        <%= if @envelopes && Enum.any?(@envelopes) do %>
+          <%= for envelope <- @envelopes do %>
+            <.live_component
+              module={TerribleWeb.BudgetLive.MonthlyEnvelopeComponent}
+              id={envelope.id}
+              budget={@budget}
+              category={@category}
+              envelope={envelope}
+            />
+          <% end %>
         <% end %>
       </tbody>
     </table>
