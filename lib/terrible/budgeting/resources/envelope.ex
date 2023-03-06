@@ -31,10 +31,16 @@ defmodule Terrible.Budgeting.Envelope do
   actions do
     defaults [:read, :create, :update, :destroy]
 
-    read :by_category_id do
+    read :by_id do
       argument :id, :uuid, allow_nil?: false
 
       get? true
+
+      filter expr(id == ^arg(:id))
+    end
+
+    read :by_category_id do
+      argument :category_id, :uuid, allow_nil?: false
 
       filter expr(category_id == ^arg(:id))
     end
@@ -46,7 +52,8 @@ defmodule Terrible.Budgeting.Envelope do
     define :read_all, action: :read
     define :update, action: :update
     define :destroy, action: :destroy
-    define :list_by_category_id, args: [:id], action: :by_category_id
+    define :list_by_category_id, args: [:category_id], action: :by_category_id
+    define :get_by_id, args: [:id], action: :by_id
   end
 
   relationships do

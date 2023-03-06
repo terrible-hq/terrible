@@ -28,6 +28,8 @@ defmodule TerribleWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import TerribleWeb.ConnCase
+
+      import Terrible.BudgetingFixtures
     end
   end
 

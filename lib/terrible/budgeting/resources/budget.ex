@@ -29,6 +29,20 @@ defmodule Terrible.Budgeting.Budget do
   actions do
     defaults [:read, :create, :update, :destroy]
 
+    read :by_id do
+      argument :id, :uuid, allow_nil?: false
+
+      get? true
+
+      filter expr(id == ^arg(:id))
+    end
+
+    read :by_book_id do
+      argument :book_id, :uuid, allow_nil?: false
+
+      filter expr(book_id == ^arg(:book_id))
+    end
+
     read :get_by_book_id_and_name do
       argument :id, :uuid, allow_nil?: false
       argument :name, :string, allow_nil?: false
@@ -45,7 +59,9 @@ defmodule Terrible.Budgeting.Budget do
     define :read_all, action: :read
     define :update, action: :update
     define :destroy, action: :destroy
+    define :list_by_book_id, args: [:book_id], action: :by_book_id
     define :get_by_book_id_and_name, args: [:id, :name], action: :get_by_book_id_and_name
+    define :get_by_id, args: [:id], action: :by_id
   end
 
   relationships do

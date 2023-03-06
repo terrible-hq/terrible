@@ -2,7 +2,6 @@ defmodule TerribleWeb.BookLiveTest do
   use TerribleWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import Terrible.BudgetingFixtures
 
   @create_attrs %{name: "Test Book"}
   @update_attrs %{name: "Test Book Updated"}

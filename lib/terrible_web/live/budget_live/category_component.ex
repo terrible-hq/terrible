@@ -23,6 +23,7 @@ defmodule TerribleWeb.BudgetLive.CategoryComponent do
             <%= unless @envelopes && Enum.any?(@envelopes) do %>
               <span>
                 <.link
+                  class="delete-category"
                   phx-click={JS.push("delete_category", value: %{id: @category.id})}
                   data-confirm="Are you sure?"
                 >
@@ -30,6 +31,13 @@ defmodule TerribleWeb.BudgetLive.CategoryComponent do
                 </.link>
               </span>
             <% end %>
+            <span>
+              <.link patch={
+                ~p"/books/#{@book}/budgets/#{@budget.name}/categories/#{@category}/envelopes/new"
+              }>
+                New Envelope
+              </.link>
+            </span>
           </th>
         </tr>
       </thead>
@@ -39,6 +47,7 @@ defmodule TerribleWeb.BudgetLive.CategoryComponent do
             <.live_component
               module={TerribleWeb.BudgetLive.MonthlyEnvelopeComponent}
               id={envelope.id}
+              book={@book}
               budget={@budget}
               category={@category}
               envelope={envelope}
