@@ -10,8 +10,25 @@ defmodule TerribleWeb.BudgetLive.MonthlyEnvelopeComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <tr>
+    <tr id={"envelopes-#{@envelope.id}"}>
       <td><%= @envelope.name %></td>
+      <td>
+        <span>
+          <.link patch={
+            ~p"/books/#{@book}/budgets/#{@budget.name}/categories/#{@category}/envelopes/#{@envelope}/edit"
+          }>
+            Edit
+          </.link>
+        </span>
+        <span>
+          <.link
+            phx-click={JS.push("delete_envelope", value: %{id: @envelope.id})}
+            data-confirm="Are you sure?"
+          >
+            Delete
+          </.link>
+        </span>
+      </td>
       <td><%= cents_to_whole(@monthly_envelope.assigned_cents) %></td>
     </tr>
     """

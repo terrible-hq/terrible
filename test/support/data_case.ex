@@ -24,6 +24,8 @@ defmodule Terrible.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Terrible.DataCase
+
+      import Terrible.BudgetingFixtures
     end
   end
 

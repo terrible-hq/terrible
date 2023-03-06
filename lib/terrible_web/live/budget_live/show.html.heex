@@ -34,3 +34,19 @@
     navigate={~p"/books/#{@book.id}/budgets/#{@budget.name}"}
   />
 </.modal>
+
+<.modal
+  :if={@live_action in [:new_envelope, :edit_envelope]}
+  id="envelope-modal"
+  show
+  on_cancel={JS.navigate(~p"/books/#{@book}/budgets/#{@budget.name}")}
+>
+  <.live_component
+    module={TerribleWeb.BudgetLive.EnvelopeFormComponent}
+    id={@envelope.id || :new}
+    title={@form_title}
+    category={@category}
+    envelope={@envelope}
+    navigate={~p"/books/#{@book.id}/budgets/#{@budget.name}"}
+  />
+</.modal>

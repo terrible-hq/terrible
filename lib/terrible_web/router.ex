@@ -29,6 +29,14 @@ defmodule TerribleWeb.Router do
     live "/books/:book_id/budgets/:name/categories/:category_id/edit",
          BudgetLive.Show,
          :edit_category
+
+    live "/books/:book_id/budgets/:name/categories/:category_id/envelopes/new",
+         BudgetLive.Show,
+         :new_envelope
+
+    live "/books/:book_id/budgets/:name/categories/:category_id/envelopes/:envelope_id/edit",
+         BudgetLive.Show,
+         :edit_envelope
   end
 
   # Other scopes may use custom stacks.
