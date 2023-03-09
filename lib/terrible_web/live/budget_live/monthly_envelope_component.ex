@@ -10,26 +10,30 @@ defmodule TerribleWeb.BudgetLive.MonthlyEnvelopeComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <tr id={"envelopes-#{@envelope.id}"}>
-      <td><%= @envelope.name %></td>
-      <td>
-        <span>
-          <.link patch={
-            ~p"/books/#{@book}/budgets/#{@budget.name}/categories/#{@category}/envelopes/#{@envelope}/edit"
-          }>
-            Edit
-          </.link>
-        </span>
-        <span>
-          <.link
-            phx-click={JS.push("delete_envelope", value: %{id: @envelope.id})}
-            data-confirm="Are you sure?"
-          >
-            Delete
-          </.link>
-        </span>
+    <tr id={"envelopes-#{@envelope.id}"} class="border-t border-gray-300">
+      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-3">
+        <%= @envelope.name %>
       </td>
-      <td><%= cents_to_whole(@monthly_envelope.assigned_cents) %></td>
+      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <%= cents_to_whole(@monthly_envelope.assigned_cents) %>
+      </td>
+      <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
+        <.link
+          patch={
+            ~p"/books/#{@book}/budgets/#{@budget.name}/categories/#{@category}/envelopes/#{@envelope}/edit"
+          }
+          class="text-indigo-600 hover:text-indigo-900"
+        >
+          Edit
+        </.link>
+        <.link
+          phx-click={JS.push("delete_envelope", value: %{id: @envelope.id})}
+          data-confirm="Are you sure?"
+          class="text-indigo-600 hover:text-indigo-900"
+        >
+          Delete
+        </.link>
+      </td>
     </tr>
     """
   end

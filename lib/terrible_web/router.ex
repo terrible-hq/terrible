@@ -23,20 +23,24 @@ defmodule TerribleWeb.Router do
     live "/books/new", BookLive.Index, :new
     live "/books/:id/edit", BookLive.Index, :edit
 
-    live "/books/:book_id/budgets/:name", BudgetLive.Show, :show
-    live "/books/:book_id/budgets/:name/categories/new", BudgetLive.Show, :new_category
+    live_session :book,
+      layout: {TerribleWeb.Layouts, :book},
+      on_mount: [TerribleWeb.NavigationAssigns] do
+      live "/books/:book_id/budgets/:name", BudgetLive.Show, :show
+      live "/books/:book_id/budgets/:name/categories/new", BudgetLive.Show, :new_category
 
-    live "/books/:book_id/budgets/:name/categories/:category_id/edit",
-         BudgetLive.Show,
-         :edit_category
+      live "/books/:book_id/budgets/:name/categories/:category_id/edit",
+           BudgetLive.Show,
+           :edit_category
 
-    live "/books/:book_id/budgets/:name/categories/:category_id/envelopes/new",
-         BudgetLive.Show,
-         :new_envelope
+      live "/books/:book_id/budgets/:name/categories/:category_id/envelopes/new",
+           BudgetLive.Show,
+           :new_envelope
 
-    live "/books/:book_id/budgets/:name/categories/:category_id/envelopes/:envelope_id/edit",
-         BudgetLive.Show,
-         :edit_envelope
+      live "/books/:book_id/budgets/:name/categories/:category_id/envelopes/:envelope_id/edit",
+           BudgetLive.Show,
+           :edit_envelope
+    end
   end
 
   # Other scopes may use custom stacks.
