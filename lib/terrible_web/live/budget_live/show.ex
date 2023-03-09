@@ -6,14 +6,24 @@ defmodule TerribleWeb.BudgetLive.Show do
   alias TerribleWeb.BudgetLive.CategoryComponent
 
   @impl true
-  def mount(%{"book_id" => book_id}, _session, socket) do
-    if connected?(socket) do
-      with {:ok, book} <- Book.get_by_id(book_id) do
+  def mount(%{"book_id" => book_id, "name" => budget_name}, _session, socket) do
+    with {:ok, book} <- Book.get_by_id(book_id),
+         {:ok, budget} <- Budget.get_by_book_id_and_name(book.id, budget_name) do
+      if connected?(socket) do
         Phoenix.PubSub.subscribe(Terrible.PubSub, "book:" <> book.id)
       end
-    end
 
-    {:ok, socket}
+      {:ok,
+       socket
+       |> assign(:book, book)
+       |> assign(:budget, budget)
+       |> assign(:categories, Category.list_by_book_id!(book.id))
+       |> assign(:category, nil)
+       |> assign(:envelope, nil)}
+    else
+      _ ->
+        {:ok, socket}
+    end
   end
 
   @impl true
@@ -21,89 +31,56 @@ defmodule TerribleWeb.BudgetLive.Show do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :show, %{"book_id" => book_id, "name" => name}) do
-    book = Book.get_by_id!(book_id)
-    budget = Budget.get_by_book_id_and_name!(book_id, name)
-    categories = Category.list_by_book_id!(book.id)
+  defp apply_action(socket, :show, %{"name" => name}) do
+    budget = Budget.get_by_book_id_and_name!(socket.assigns.book.id, name)
 
     socket
-    |> assign(:page_title, "Budget | #{book.name}")
-    |> assign(:book, book)
+    |> assign(:page_title, "Budget | #{socket.assigns.book.name}")
     |> assign(:budget, budget)
-    |> assign(:categories, categories)
+    |> assign(:category, nil)
+    |> assign(:envelope, nil)
   end
 
-  defp apply_action(socket, :new_category, %{"book_id" => book_id, "name" => name}) do
-    book = Book.get_by_id!(book_id)
-    budget = Budget.get_by_book_id_and_name!(book_id, name)
-    categories = Category.list_by_book_id!(book.id)
-
+  defp apply_action(socket, :new_category, _params) do
     socket
-    |> assign(:page_title, "New Category | #{book.name}")
+    |> assign(:page_title, "New Category | #{socket.assigns.book.name}")
     |> assign(:form_title, "Create New Category")
-    |> assign(:book, book)
-    |> assign(:budget, budget)
-    |> assign(:categories, categories)
     |> assign(:category, %Category{})
   end
 
   defp apply_action(socket, :edit_category, %{
-         "book_id" => book_id,
-         "name" => name,
          "category_id" => category_id
        }) do
-    book = Book.get_by_id!(book_id)
-    budget = Budget.get_by_book_id_and_name!(book_id, name)
-    categories = Category.list_by_book_id!(book.id)
     category = Category.get_by_id!(category_id)
 
     socket
-    |> assign(:page_title, "Edit Category | #{book.name}")
+    |> assign(:page_title, "Edit Category | #{socket.assigns.book.name}")
     |> assign(:form_title, "Edit Category")
-    |> assign(:book, book)
-    |> assign(:budget, budget)
-    |> assign(:categories, categories)
     |> assign(:category, category)
   end
 
   defp apply_action(socket, :new_envelope, %{
-         "book_id" => book_id,
-         "name" => name,
          "category_id" => category_id
        }) do
-    book = Book.get_by_id!(book_id)
-    budget = Budget.get_by_book_id_and_name!(book_id, name)
-    categories = Category.list_by_book_id!(book.id)
     category = Category.get_by_id!(category_id)
 
     socket
-    |> assign(:page_title, "New Envelope | #{book.name}")
+    |> assign(:page_title, "New Envelope | #{socket.assigns.book.name}")
     |> assign(:form_title, "Create New Envelope")
-    |> assign(:book, book)
-    |> assign(:budget, budget)
-    |> assign(:categories, categories)
     |> assign(:category, category)
     |> assign(:envelope, %Envelope{})
   end
 
   defp apply_action(socket, :edit_envelope, %{
-         "book_id" => book_id,
-         "name" => name,
          "category_id" => category_id,
          "envelope_id" => envelope_id
        }) do
-    book = Book.get_by_id!(book_id)
-    budget = Budget.get_by_book_id_and_name!(book_id, name)
-    categories = Category.list_by_book_id!(book.id)
     category = Category.get_by_id!(category_id)
     envelope = Envelope.get_by_id!(envelope_id)
 
     socket
-    |> assign(:page_title, "Edit Envelope | #{book.name}")
+    |> assign(:page_title, "Edit Envelope | #{socket.assigns.book.name}")
     |> assign(:form_title, "Edit Envelope")
-    |> assign(:book, book)
-    |> assign(:budget, budget)
-    |> assign(:categories, categories)
     |> assign(:category, category)
     |> assign(:envelope, envelope)
   end
