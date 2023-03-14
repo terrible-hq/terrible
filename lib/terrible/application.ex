@@ -16,6 +16,7 @@ defmodule Terrible.Application do
       {Phoenix.PubSub, name: Terrible.PubSub},
       # Start Finch
       {Finch, name: Terrible.Finch},
+      {AshAuthentication.Supervisor, otp_app: :terrible},
       # Start the Endpoint (http/https)
       TerribleWeb.Endpoint
       # Start a worker by calling: Terrible.Worker.start_link(arg)

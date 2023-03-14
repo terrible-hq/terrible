@@ -25,6 +25,9 @@ config :terrible, TerribleWeb.Endpoint,
 # In test we don't send emails.
 config :terrible, Terrible.Mailer, adapter: Swoosh.Adapters.Test
 
+config :terrible,
+  token_signing_secret: "/kdFJFGsvqHH7EL5jvN2z0AAYb7mPsWEDtL0+O/8i86p6wwJ6S6HGa9kdyVygaKg"
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 

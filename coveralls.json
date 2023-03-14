@@ -4,6 +4,7 @@
     "lib/terrible/application.ex",
     "lib/terrible/repo.ex",
     "lib/terrible_web.ex",
+    "lib/terrible_web/controllers/authentication_controller.ex",
     "lib/terrible_web/components/layouts.ex",
     "lib/terrible_web/endpoint.ex",
     "lib/terrible_web/gettext.ex",
