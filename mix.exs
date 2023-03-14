@@ -40,6 +40,8 @@ defmodule Terrible.MixProject do
   defp deps do
     [
       {:ash, "2.6.3"},
+      {:ash_authentication, "3.10.2"},
+      {:ash_authentication_phoenix, "1.6.2"},
       {:ash_phoenix, "1.2.5"},
       {:ash_postgres, "1.3.10"},
       {:credo, "1.6.7", only: [:dev, :test], runtime: false},

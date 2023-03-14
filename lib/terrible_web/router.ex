@@ -1,5 +1,6 @@
 defmodule TerribleWeb.Router do
   use TerribleWeb, :router
+  use AshAuthentication.Phoenix.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,16 +9,23 @@ defmodule TerribleWeb.Router do
     plug :put_root_layout, {TerribleWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :load_from_session
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :load_from_bearer
   end
 
   scope "/", TerribleWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    sign_in_route()
+    sign_out_route(AuthenticationController)
+    auth_routes_for(Terrible.Authentication.User, to: AuthenticationController)
+    reset_route([])
 
     live "/books", BookLive.Index, :index
     live "/books/new", BookLive.Index, :new
