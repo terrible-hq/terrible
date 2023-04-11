@@ -3,7 +3,6 @@ defmodule TerribleWeb.BookLive.FormComponent do
 
   alias Terrible.Budgeting
   alias Terrible.Budgeting.Book
-  alias Terrible.Budgeting.CreateBook
 
   @impl true
   def render(assigns) do
@@ -32,21 +31,23 @@ defmodule TerribleWeb.BookLive.FormComponent do
   end
 
   @impl true
-  def update(%{book: book} = assigns, socket) do
+  def update(%{book: book, current_user: current_user} = assigns, socket) do
     form =
       if book.id do
         AshPhoenix.Form.for_action(
           book,
           :update,
           as: "book",
-          api: Budgeting
+          api: Budgeting,
+          actor: current_user
         )
       else
         AshPhoenix.Form.for_action(
           Book,
           :create,
           as: "book",
-          api: Budgeting
+          api: Budgeting,
+          actor: current_user
         )
       end
 
@@ -62,29 +63,17 @@ defmodule TerribleWeb.BookLive.FormComponent do
   end
 
   def handle_event("save", %{"book" => book_params}, socket) do
-    form = AshPhoenix.Form.validate(socket.assigns.form, book_params)
+    case AshPhoenix.Form.submit(socket.assigns.form, params: book_params) do
+      {:ok, _book} ->
+        message = "Book #{socket.assigns.form.type}d successfully"
 
-    if form.valid? do
-      action = socket.assigns.form.type
+        {:noreply,
+         socket
+         |> put_flash(:info, message)
+         |> push_navigate(to: socket.assigns.navigate)}
 
-      case action do
-        :update ->
-          AshPhoenix.Form.submit(socket.assigns.form, params: book_params)
-
-        :create ->
-          book_params
-          |> Map.get("name")
-          |> CreateBook.run!()
-      end
-
-      socket =
-        socket
-        |> put_flash(:info, "Book #{action}d successfully")
-        |> push_navigate(to: socket.assigns.navigate)
-
-      {:noreply, socket}
-    else
-      {:noreply, assign(socket, form: form)}
+      {:error, form} ->
+        {:noreply, assign(socket, :form, form)}
     end
   end
 end

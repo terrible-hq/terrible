@@ -4,21 +4,33 @@ defmodule Terrible.BudgetingFixtures do
   entities via the `Terrible.Budgeting` context.
   """
 
-  alias Terrible.Budgeting.{Book, Budget, Category, Envelope, MonthlyEnvelope}
+  alias Terrible.Budgeting.{Book, BookUser, Budget, Category, Envelope, MonthlyEnvelope}
   alias Terrible.Utils
 
   @doc """
   Generate a book.
   """
   def book_fixture(attrs \\ %{}) do
-    {:ok, book} =
-      attrs
-      |> Enum.into(%{
-        name: "Some Book"
+    attrs =
+      Enum.into(attrs, %{
+        name: "Some Book #{System.unique_integer([:positive])}}"
       })
-      |> Book.create()
 
-    book
+    Ash.Seed.seed!(Book, attrs)
+  end
+
+  @doc """
+  Generate a BookUser.
+  """
+  def book_user_fixture(book, user, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        book_id: book.id,
+        user_id: user.id,
+        role: :owner
+      })
+
+    Ash.Seed.seed!(BookUser, attrs)
   end
 
   @doc """
@@ -28,16 +40,14 @@ defmodule Terrible.BudgetingFixtures do
     current_month = Date.utc_today() |> Date.beginning_of_month()
     book_id = Map.get(attrs, :book_id) || book_fixture().id
 
-    {:ok, budget} =
-      attrs
-      |> Enum.into(%{
+    attrs =
+      Enum.into(attrs, %{
         name: Utils.get_budget_name(current_month),
         month: current_month,
         book_id: book_id
       })
-      |> Budget.create()
 
-    budget
+    Ash.Seed.seed!(Budget, attrs)
   end
 
   @doc """
@@ -46,15 +56,13 @@ defmodule Terrible.BudgetingFixtures do
   def category_fixture(attrs \\ %{}) do
     book_id = Map.get(attrs, :book_id) || book_fixture().id
 
-    {:ok, category} =
-      attrs
-      |> Enum.into(%{
-        name: "Some Category",
+    attrs =
+      Enum.into(attrs, %{
+        name: "Category #{System.unique_integer([:positive])}}",
         book_id: book_id
       })
-      |> Category.create()
 
-    category
+    Ash.Seed.seed!(Category, attrs)
   end
 
   @doc """
@@ -63,15 +71,13 @@ defmodule Terrible.BudgetingFixtures do
   def envelope_fixture(attrs \\ %{}) do
     category_id = Map.get(attrs, :category_id) || category_fixture().id
 
-    {:ok, envelope} =
-      attrs
-      |> Enum.into(%{
-        name: "Some Envelope",
+    attrs =
+      Enum.into(attrs, %{
+        name: "Envelope #{System.unique_integer([:positive])}}",
         category_id: category_id
       })
-      |> Envelope.create()
 
-    envelope
+    Ash.Seed.seed!(Envelope, attrs)
   end
 
   @doc """
@@ -81,15 +87,13 @@ defmodule Terrible.BudgetingFixtures do
     budget_id = Map.get(attrs, :budget_id) || budget_fixture().id
     envelope_id = Map.get(attrs, :envelope_id) || envelope_fixture().id
 
-    {:ok, monthly_envelope} =
-      attrs
-      |> Enum.into(%{
+    attrs =
+      Enum.into(attrs, %{
         budget_id: budget_id,
         envelope_id: envelope_id,
         assigned_cents: 0
       })
-      |> MonthlyEnvelope.create()
 
-    monthly_envelope
+    Ash.Seed.seed!(MonthlyEnvelope, attrs)
   end
 end

@@ -9,9 +9,12 @@ defmodule Terrible.Budgeting.Envelope do
       Home Maintenance
   """
 
-  use Ash.Resource, data_layer: AshPostgres.DataLayer
+  use Ash.Resource,
+    data_layer: AshPostgres.DataLayer,
+    notifiers: [Ash.Notifier.PubSub]
 
   alias Terrible.Budgeting.{Category, MonthlyEnvelope}
+  alias Terrible.Budgeting.Envelope.Changes.CreateMonthlyEnvelopes
 
   attributes do
     uuid_primary_key :id
@@ -20,16 +23,12 @@ defmodule Terrible.Budgeting.Envelope do
       allow_nil? false
     end
 
-    attribute :category_id, :uuid do
-      allow_nil? false
-    end
-
     create_timestamp :inserted_at
     update_timestamp :updated_at
   end
 
   actions do
-    defaults [:read, :create, :update, :destroy]
+    defaults [:read, :update, :destroy]
 
     read :by_id do
       argument :id, :uuid, allow_nil?: false
@@ -44,16 +43,35 @@ defmodule Terrible.Budgeting.Envelope do
 
       filter expr(category_id == ^arg(:id))
     end
+
+    create :create do
+      primary? true
+      accept [:name]
+
+      argument :category_id, :uuid do
+        allow_nil? true
+      end
+
+      change manage_relationship(:category_id, :category, type: :append)
+      change CreateMonthlyEnvelopes
+    end
   end
 
   code_interface do
     define_for Terrible.Budgeting
-    define :create, action: :create
+    define :create
     define :read_all, action: :read
     define :update, action: :update
     define :destroy, action: :destroy
     define :list_by_category_id, args: [:category_id], action: :by_category_id
     define :get_by_id, args: [:id], action: :by_id
+  end
+
+  pub_sub do
+    module TerribleWeb.Endpoint
+    prefix "envelopes"
+
+    publish :destroy, ["destroyed", :id]
   end
 
   relationships do
@@ -68,8 +86,8 @@ defmodule Terrible.Budgeting.Envelope do
     table "envelopes"
     repo Terrible.Repo
 
-    custom_indexes do
-      index ["category_id"]
+    references do
+      reference :category, on_delete: :delete
     end
   end
 end

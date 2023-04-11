@@ -14,16 +14,12 @@ defmodule Terrible.Budgeting.Category do
       allow_nil? false
     end
 
-    attribute :book_id, :uuid do
-      allow_nil? false
-    end
-
     create_timestamp :inserted_at
     update_timestamp :updated_at
   end
 
   actions do
-    defaults [:read, :create, :update, :destroy]
+    defaults [:read, :update, :destroy]
 
     read :by_book_id do
       argument :id, :uuid, allow_nil?: false
@@ -37,6 +33,22 @@ defmodule Terrible.Budgeting.Category do
       get? true
 
       filter expr(id == ^arg(:id))
+    end
+
+    create :create do
+      primary? true
+      accept [:name]
+
+      argument :book_id, :uuid do
+        allow_nil? false
+      end
+
+      argument :envelopes, {:array, :string} do
+        allow_nil? true
+      end
+
+      change manage_relationship(:book_id, :book, type: :append)
+      change manage_relationship(:envelopes, type: :create, value_is_key: :name)
     end
   end
 
@@ -62,8 +74,8 @@ defmodule Terrible.Budgeting.Category do
     table "categories"
     repo Terrible.Repo
 
-    custom_indexes do
-      index ["book_id"]
+    references do
+      reference :book, on_delete: :delete
     end
   end
 end

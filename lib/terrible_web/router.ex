@@ -27,13 +27,25 @@ defmodule TerribleWeb.Router do
     auth_routes_for(Terrible.Authentication.User, to: AuthenticationController)
     reset_route([])
 
-    live "/books", BookLive.Index, :index
-    live "/books/new", BookLive.Index, :new
-    live "/books/:id/edit", BookLive.Index, :edit
+    live_session :authenticated,
+      on_mount: [
+        AshAuthentication.Phoenix.LiveSession,
+        {TerribleWeb.LiveUserAssigns, :live_user_required}
+      ],
+      session: {AshAuthentication.Phoenix.LiveSession, :generate_session, []} do
+      live "/books", BookLive.Index, :index
+      live "/books/new", BookLive.Index, :new
+      live "/books/:id/edit", BookLive.Index, :edit
+    end
 
-    live_session :book,
+    live_session :authenticated_budgeting,
       layout: {TerribleWeb.Layouts, :book},
-      on_mount: [TerribleWeb.NavigationAssigns] do
+      on_mount: [
+        AshAuthentication.Phoenix.LiveSession,
+        {TerribleWeb.LiveUserAssigns, :live_user_required},
+        TerribleWeb.NavigationAssigns
+      ],
+      session: {AshAuthentication.Phoenix.LiveSession, :generate_session, []} do
       live "/books/:book_id/budgets/:name", BudgetLive.Show, :show
       live "/books/:book_id/budgets/:name/categories/new", BudgetLive.Show, :new_category
 

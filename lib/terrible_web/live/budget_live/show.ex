@@ -2,12 +2,11 @@ defmodule TerribleWeb.BudgetLive.Show do
   use TerribleWeb, :live_view
 
   alias Terrible.Budgeting.{Book, Budget, Category, Envelope}
-  alias Terrible.Budgeting.DestroyEnvelope
   alias TerribleWeb.BudgetLive.CategoryComponent
 
   @impl true
   def mount(%{"book_id" => book_id, "name" => budget_name}, _session, socket) do
-    with {:ok, book} <- Book.get_by_id(book_id),
+    with {:ok, book} <- Book.get(book_id),
          {:ok, budget} <- Budget.get_by_book_id_and_name(book.id, budget_name) do
       if connected?(socket) do
         Phoenix.PubSub.subscribe(Terrible.PubSub, "book:" <> book.id)
@@ -98,7 +97,7 @@ defmodule TerribleWeb.BudgetLive.Show do
   def handle_event("delete_envelope", %{"id" => id}, socket) do
     envelope = Envelope.get_by_id!(id)
     category = Category.get_by_id!(envelope.category_id)
-    DestroyEnvelope.run!(envelope.id)
+    Envelope.destroy(envelope)
 
     {:noreply, assign(socket, :categories, Category.list_by_book_id!(category.book_id))}
   end

@@ -4,7 +4,22 @@ defmodule TerribleWeb.BudgetLive.CategoryTest do
   import Phoenix.LiveViewTest
 
   describe "New Category" do
-    setup [:create_essential_fixtures]
+    setup %{conn: conn} do
+      result = register_and_log_in_user(%{conn: conn})
+      book = book_fixture(%{name: "Test Book"})
+      book_user_fixture(book, result[:user])
+      budget = budget_fixture(%{book_id: book.id})
+      category = category_fixture(%{book_id: book.id, name: "Bills"})
+      envelope = envelope_fixture(%{category_id: category.id, name: "Rent / Mortgage"})
+      monthly_envelope_fixture(%{envelope_id: envelope.id, budget_id: budget.id})
+
+      %{
+        conn: result[:conn],
+        user: result[:user],
+        book: book,
+        budget: budget
+      }
+    end
 
     test "New Category form submission with correct data creates a new Category", %{
       conn: conn,
@@ -47,7 +62,22 @@ defmodule TerribleWeb.BudgetLive.CategoryTest do
   end
 
   describe "Edit Category" do
-    setup [:create_essential_fixtures]
+    setup %{conn: conn} do
+      result = register_and_log_in_user(%{conn: conn})
+      book = book_fixture(%{name: "Test Book"})
+      book_user_fixture(book, result[:user])
+      budget = budget_fixture(%{book_id: book.id})
+      category = category_fixture(%{book_id: book.id, name: "Bills"})
+      envelope = envelope_fixture(%{category_id: category.id, name: "Rent / Mortgage"})
+      monthly_envelope_fixture(%{envelope_id: envelope.id, budget_id: budget.id})
+
+      %{
+        conn: result[:conn],
+        user: result[:user],
+        book: book,
+        budget: budget
+      }
+    end
 
     test "Edit Category form submission with correct data updates existing Category", %{
       conn: conn,
@@ -100,7 +130,22 @@ defmodule TerribleWeb.BudgetLive.CategoryTest do
   end
 
   describe "Delete Category" do
-    setup [:create_essential_fixtures]
+    setup %{conn: conn} do
+      result = register_and_log_in_user(%{conn: conn})
+      book = book_fixture(%{name: "Test Book"})
+      book_user_fixture(book, result[:user])
+      budget = budget_fixture(%{book_id: book.id})
+      category = category_fixture(%{book_id: book.id, name: "Bills"})
+      envelope = envelope_fixture(%{category_id: category.id, name: "Rent / Mortgage"})
+      monthly_envelope_fixture(%{envelope_id: envelope.id, budget_id: budget.id})
+
+      %{
+        conn: result[:conn],
+        user: result[:user],
+        book: book,
+        budget: budget
+      }
+    end
 
     test "Clicking Delete button removes Category from page", %{
       conn: conn,
@@ -135,28 +180,5 @@ defmodule TerribleWeb.BudgetLive.CategoryTest do
       assert has_element?(show_live, "#categories-#{category.id} a", "Edit")
       refute has_element?(show_live, "#categories-#{category.id} a.delete_category", "Delete")
     end
-  end
-
-  defp create_essential_fixtures(_) do
-    book = book_fixture(name: "Test Book")
-
-    budget =
-      budget_fixture(%{
-        name: "202302",
-        month: ~D[2023-02-26],
-        book_id: book.id
-      })
-
-    category =
-      category_fixture(%{
-        name: "Test Category",
-        book_id: book.id
-      })
-
-    %{
-      book: book,
-      budget: budget,
-      category: category
-    }
   end
 end

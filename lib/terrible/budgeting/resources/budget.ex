@@ -18,16 +18,12 @@ defmodule Terrible.Budgeting.Budget do
       allow_nil? false
     end
 
-    attribute :book_id, :uuid do
-      allow_nil? false
-    end
-
     create_timestamp :inserted_at
     update_timestamp :updated_at
   end
 
   actions do
-    defaults [:read, :create, :update, :destroy]
+    defaults [:read, :update, :destroy]
 
     read :by_id do
       argument :id, :uuid, allow_nil?: false
@@ -50,6 +46,17 @@ defmodule Terrible.Budgeting.Budget do
       get? true
 
       filter expr(book_id == ^arg(:id) and name == ^arg(:name))
+    end
+
+    create :create do
+      primary? true
+      accept [:name, :month]
+
+      argument :book_id, :uuid do
+        allow_nil? false
+      end
+
+      change manage_relationship(:book_id, :book, type: :append)
     end
   end
 
@@ -80,6 +87,10 @@ defmodule Terrible.Budgeting.Budget do
 
     custom_indexes do
       index ["month"]
+    end
+
+    references do
+      reference :book, on_delete: :delete
     end
   end
 end

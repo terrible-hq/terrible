@@ -31,6 +31,7 @@ defmodule TerribleWeb.ConnCase do
 
       import Terrible.AuthenticationFixtures
       import Terrible.BudgetingFixtures
+      import TerribleWeb.AuthenticationTestHelpers
     end
   end
 
