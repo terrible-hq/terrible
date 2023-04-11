@@ -5,7 +5,9 @@ defmodule Terrible.Budgeting.Book do
 
   use Ash.Resource, data_layer: AshPostgres.DataLayer
 
-  alias Terrible.Budgeting.{Budget, Category}
+  alias Terrible.Authentication.User
+  alias Terrible.Budgeting.Book.Changes.CreateRelatedRecords
+  alias Terrible.Budgeting.{BookUser, Budget, Category}
 
   attributes do
     uuid_primary_key :id
@@ -19,29 +21,58 @@ defmodule Terrible.Budgeting.Book do
   end
 
   actions do
-    defaults [:read, :create, :update, :destroy]
+    defaults [:read, :destroy]
 
-    read :by_id do
-      argument :id, :uuid, allow_nil?: false
+    read :list do
+      description "Returns a list of all Books available to the given user"
 
-      get? true
+      argument :user_id, :uuid do
+        allow_nil? false
+      end
 
-      filter expr(id == ^arg(:id))
+      filter expr(visible_to(user_id: arg(:user_id)))
+    end
+
+    create :create do
+      accept [:name]
+      primary? true
+      change CreateRelatedRecords
+    end
+
+    update :update do
+      accept [:name]
+      primary? true
     end
   end
 
   code_interface do
     define_for Terrible.Budgeting
+    define :list, args: [:user_id]
+    define :get, action: :read, get_by: [:id]
     define :create, action: :create
-    define :read_all, action: :read
-    define :update, action: :update
     define :destroy, action: :destroy
-    define :get_by_id, args: [:id], action: :by_id
   end
 
   relationships do
     has_many :budgets, Budget
     has_many :categories, Category
+
+    many_to_many :users, User do
+      through BookUser
+      api Terrible.Authentication
+      source_attribute_on_join_resource :book_id
+      destination_attribute_on_join_resource :user_id
+    end
+  end
+
+  calculations do
+    calculate :visible_to,
+              :boolean,
+              expr(exists(users, id == ^arg(:user_id))) do
+      argument :user_id, :uuid do
+        allow_nil? false
+      end
+    end
   end
 
   postgres do

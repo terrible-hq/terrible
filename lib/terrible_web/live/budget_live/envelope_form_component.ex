@@ -2,7 +2,6 @@ defmodule TerribleWeb.BudgetLive.EnvelopeFormComponent do
   use TerribleWeb, :live_component
 
   alias Terrible.Budgeting
-  alias Terrible.Budgeting.CreateEnvelope
   alias Terrible.Budgeting.Envelope
 
   @impl true
@@ -68,36 +67,25 @@ defmodule TerribleWeb.BudgetLive.EnvelopeFormComponent do
   end
 
   def handle_event("save", %{"envelope" => envelope_params}, socket) do
-    form = AshPhoenix.Form.validate(socket.assigns.form, envelope_params)
+    case AshPhoenix.Form.submit(
+           socket.assigns.form,
+           params: envelope_params,
+           before_submit: fn changeset ->
+             Ash.Changeset.set_argument(changeset, :category_id, socket.assigns.category.id)
+           end
+         ) do
+      {:ok, _envelope} ->
+        message = "Envelope #{socket.assigns.form.type}d successfully"
 
-    if form.valid? do
-      action = socket.assigns.form.type
+        socket =
+          socket
+          |> put_flash(:info, message)
+          |> push_navigate(to: socket.assigns.navigate)
 
-      case action do
-        :update ->
-          AshPhoenix.Form.submit(
-            socket.assigns.form,
-            params: envelope_params,
-            before_submit: fn changeset ->
-              Ash.Changeset.set_argument(changeset, :category_id, socket.assigns.category.id)
-            end
-          )
+        {:noreply, socket}
 
-        :create ->
-          CreateEnvelope.run!(
-            Map.get(envelope_params, "name"),
-            Map.get(envelope_params, "category_id")
-          )
-      end
-
-      socket =
-        socket
-        |> put_flash(:info, "Envelope #{action}d successfully")
-        |> push_navigate(to: socket.assigns.navigate)
-
-      {:noreply, socket}
-    else
-      {:noreply, assign(socket, form: form)}
+      {:error, form} ->
+        {:noreply, assign(socket, :form, form)}
     end
   end
 end

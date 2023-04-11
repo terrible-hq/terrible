@@ -4,6 +4,10 @@ defmodule Terrible.Authentication.User do
     data_layer: AshPostgres.DataLayer,
     extensions: [AshAuthentication]
 
+  alias Terrible.Authentication
+  alias Terrible.Authentication.SendPasswordResetEmail
+  alias Terrible.Budgeting.{Book, BookUser}
+
   attributes do
     uuid_primary_key :id
 
@@ -24,38 +28,24 @@ defmodule Terrible.Authentication.User do
 
       filter expr(id == ^arg(:id))
     end
-
-    create :manual_create do
-      argument :attrs, :map, allow_nil?: false
-
-      primary? false
-
-      change fn changeset, _ ->
-        attrs = Ash.Changeset.get_argument(changeset, :attrs)
-
-        changeset
-        |> Ash.Changeset.change_attribute(:email, attrs.email)
-        |> Ash.Changeset.change_attribute(:hashed_password, attrs.hashed_password)
-      end
-    end
   end
 
   code_interface do
-    define_for Terrible.Authentication
-    define :manual_create, args: [:attrs], action: :manual_create
+    define_for Authentication
     define :read_all, action: :read
     define :get_by_id, args: [:id], action: :by_id
+    define :register_with_password, args: [:email, :password, :password_confirmation]
   end
 
   authentication do
-    api Terrible.Authentication
+    api Authentication
 
     strategies do
       password :password do
         identity_field(:email)
 
         resettable do
-          sender Terrible.Authentication.SendPasswordResetEmail
+          sender SendPasswordResetEmail
         end
       end
     end
@@ -67,6 +57,15 @@ defmodule Terrible.Authentication.User do
       signing_secret fn _, _ ->
         Application.fetch_env(:terrible, :token_signing_secret)
       end
+    end
+  end
+
+  relationships do
+    many_to_many :books, Book do
+      through BookUser
+      api Terrible.Budgeting
+      source_attribute_on_join_resource :user_id
+      destination_attribute_on_join_resource :book_id
     end
   end
 

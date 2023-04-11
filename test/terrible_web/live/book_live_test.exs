@@ -7,52 +7,24 @@ defmodule TerribleWeb.BookLiveTest do
   @update_attrs %{name: "Test Book Updated"}
   @invalid_attrs %{name: nil}
 
-  defp create_book(_) do
-    book = book_fixture()
-    %{book: book}
-  end
+  describe "with existing books" do
+    setup %{conn: conn} do
+      result = register_and_log_in_user(%{conn: conn})
+      book = book_fixture(%{name: "Test Book"})
+      book_user_fixture(book, result[:user])
 
-  describe "Index" do
-    setup [:create_book]
+      %{
+        conn: result[:conn],
+        user: result[:user],
+        book: book
+      }
+    end
 
     test "lists all books", %{conn: conn, book: book} do
       {:ok, _index_live, html} = live(conn, ~p"/books")
 
       assert html =~ "Listing Books"
       assert html =~ book.name
-    end
-
-    test "new form submission with correct data saves new book", %{conn: conn} do
-      {:ok, index_live, _html} = live(conn, ~p"/books")
-
-      assert index_live |> element("a", "New Book") |> render_click() =~
-               "New Book"
-
-      assert_patch(index_live, ~p"/books/new")
-
-      {:ok, _, html} =
-        index_live
-        |> form("#book-form", book: @create_attrs)
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/books")
-
-      assert html =~ "Book created successfully"
-      assert html =~ "Test Book"
-    end
-
-    test "new form submission with blank data returns error", %{conn: conn} do
-      {:ok, index_live, _html} = live(conn, ~p"/books")
-
-      assert index_live |> element("a", "New Book") |> render_click() =~
-               "New Book"
-
-      assert index_live
-             |> form("#book-form", book: @invalid_attrs)
-             |> render_change() =~ "is required"
-
-      assert index_live
-             |> form("#book-form", book: @invalid_attrs)
-             |> render_submit() =~ "is required"
     end
 
     test "edit form submission with correct data updates book in listing", %{
@@ -96,6 +68,43 @@ defmodule TerribleWeb.BookLiveTest do
 
       assert index_live |> element("#books-#{book.id} a", "Delete") |> render_click()
       refute has_element?(index_live, "#book-#{book.id}")
+    end
+  end
+
+  describe "without existing Book" do
+    setup [:register_and_log_in_user]
+
+    test "new form submission with correct data saves new book", %{conn: conn} do
+      {:ok, index_live, _html} = live(conn, ~p"/books")
+
+      assert index_live |> element("a", "New Book") |> render_click() =~
+               "New Book"
+
+      assert_patch(index_live, ~p"/books/new")
+
+      {:ok, _, html} =
+        index_live
+        |> form("#book-form", book: @create_attrs)
+        |> render_submit()
+        |> follow_redirect(conn, ~p"/books")
+
+      assert html =~ "Book created successfully"
+      assert html =~ "Test Book"
+    end
+
+    test "new form submission with blank data returns error", %{conn: conn} do
+      {:ok, index_live, _html} = live(conn, ~p"/books")
+
+      assert index_live |> element("a", "New Book") |> render_click() =~
+               "New Book"
+
+      assert index_live
+             |> form("#book-form", book: @invalid_attrs)
+             |> render_change() =~ "is required"
+
+      assert index_live
+             |> form("#book-form", book: @invalid_attrs)
+             |> render_submit() =~ "is required"
     end
   end
 end

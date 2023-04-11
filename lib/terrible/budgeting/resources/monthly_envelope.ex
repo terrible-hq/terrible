@@ -11,14 +11,6 @@ defmodule Terrible.Budgeting.MonthlyEnvelope do
   attributes do
     uuid_primary_key :id
 
-    attribute :budget_id, :uuid do
-      allow_nil? false
-    end
-
-    attribute :envelope_id, :uuid do
-      allow_nil? false
-    end
-
     attribute :assigned_cents, :integer do
       default 0
     end
@@ -28,7 +20,7 @@ defmodule Terrible.Budgeting.MonthlyEnvelope do
   end
 
   actions do
-    defaults [:read, :create]
+    defaults [:read]
 
     read :by_budget_envelope_id do
       argument :budget_id, :uuid, allow_nil?: false
@@ -37,6 +29,23 @@ defmodule Terrible.Budgeting.MonthlyEnvelope do
       get? true
 
       filter expr(budget_id == ^arg(:budget_id) and envelope_id == ^arg(:envelope_id))
+    end
+
+    create :create do
+      primary? true
+      upsert? true
+      upsert_identity :unique_monthly_envelope
+
+      argument :budget_id, :uuid do
+        allow_nil? false
+      end
+
+      argument :envelope_id, :uuid do
+        allow_nil? false
+      end
+
+      change manage_relationship(:budget_id, :budget, type: :append)
+      change manage_relationship(:envelope_id, :envelope, type: :append)
     end
   end
 
@@ -66,5 +75,10 @@ defmodule Terrible.Budgeting.MonthlyEnvelope do
   postgres do
     table "monthly_envelopes"
     repo Terrible.Repo
+
+    references do
+      reference :budget, on_delete: :delete
+      reference :envelope, on_delete: :delete
+    end
   end
 end

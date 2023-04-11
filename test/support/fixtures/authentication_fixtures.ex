@@ -10,19 +10,12 @@ defmodule Terrible.AuthenticationFixtures do
   Generate a User.
   """
   def user_fixture(attrs \\ %{}) do
-    hashed_password =
-      attrs
-      |> Map.get(:password, "password")
-      |> Bcrypt.hash_pwd_salt()
-
-    {:ok, user} =
-      attrs
-      |> Enum.into(%{
-        email: "email-#{:rand.uniform(200)}@example.com",
-        hashed_password: hashed_password
+    attrs =
+      Enum.into(attrs, %{
+        email: "test-#{System.unique_integer([:positive])}@example.com",
+        hashed_password: Bcrypt.hash_pwd_salt("password123")
       })
-      |> User.manual_create()
 
-    user
+    Ash.Seed.seed!(User, attrs)
   end
 end
