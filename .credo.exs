@@ -34,6 +34,7 @@
         excluded: [
           ~r"/_build/",
           ~r"/deps/",
+          ~r"/lib/terrible_web/components/core_components.ex",
           ~r"/node_modules/",
           ~r"/test/support"
         ]

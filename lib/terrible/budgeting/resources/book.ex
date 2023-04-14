@@ -3,7 +3,9 @@ defmodule Terrible.Budgeting.Book do
   A Book is the catch-all container for a budget.
   """
 
-  use Ash.Resource, data_layer: AshPostgres.DataLayer
+  use Ash.Resource,
+    data_layer: AshPostgres.DataLayer,
+    notifiers: [Ash.Notifier.PubSub]
 
   alias Terrible.Authentication.User
   alias Terrible.Budgeting.Book.Changes.CreateRelatedRecords
@@ -51,6 +53,15 @@ defmodule Terrible.Budgeting.Book do
     define :get, action: :read, get_by: [:id]
     define :create, action: :create
     define :destroy, action: :destroy
+  end
+
+  pub_sub do
+    module TerribleWeb.Endpoint
+    prefix "books"
+
+    publish :create, ["created"]
+    publish :update, ["updated", :id]
+    publish :destroy, ["destroyed", :id]
   end
 
   relationships do

@@ -37,12 +37,13 @@ defmodule TerribleWeb.BudgetLive.EnvelopeTest do
         ~p"/books/#{book}/budgets/#{budget.name}/categories/#{category}/envelopes/new"
       )
 
-      {:ok, _show_live, html} =
-        show_live
-        |> form("#envelope-form", envelope: %{name: "Test New Envelope"})
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/books/#{book}/budgets/#{budget.name}")
+      assert show_live
+             |> form("#envelope-form", envelope: %{name: "Test New Envelope"})
+             |> render_submit()
 
+      assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      html = render(show_live)
       assert html =~ "Envelope created successfully"
       assert html =~ "Test New Envelope"
     end
@@ -109,12 +110,13 @@ defmodule TerribleWeb.BudgetLive.EnvelopeTest do
         ~p"/books/#{book}/budgets/#{budget.name}/categories/#{category}/envelopes/#{envelope}/edit"
       )
 
-      {:ok, _show_live, html} =
-        show_live
-        |> form("#envelope-form", envelope: %{name: "Different Envelope"})
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/books/#{book}/budgets/#{budget.name}")
+      assert show_live
+             |> form("#envelope-form", envelope: %{name: "Different Envelope"})
+             |> render_submit()
 
+      assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      html = render(show_live)
       assert html =~ "Envelope updated successfully"
       assert html =~ "Different Envelope"
       refute html =~ "Existing Envelope"
@@ -168,25 +170,25 @@ defmodule TerribleWeb.BudgetLive.EnvelopeTest do
       }
     end
 
-    # test "Clicking Delete button removes Envelope from page", %{
-    #   conn: conn,
-    #   book: book,
-    #   budget: budget,
-    #   category: category
-    # } do
-    #   envelope = envelope_fixture(%{name: "Existing Envelope", category_id: category.id})
-    #
-    #   monthly_envelope_fixture(%{
-    #     budget_id: budget.id,
-    #     envelope_id: envelope.id,
-    #     assigned_cents: 1234
-    #   })
-    #
-    #   {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
-    #
-    #   assert show_live |> element("#envelopes-#{envelope.id} a", "Delete") |> render_click()
-    #
-    #   refute has_element?(show_live, "#envelopes-#{envelope.id}")
-    # end
+    test "Clicking Delete button removes Envelope from page", %{
+      conn: conn,
+      book: book,
+      budget: budget,
+      category: category
+    } do
+      envelope = envelope_fixture(%{name: "Existing Envelope", category_id: category.id})
+
+      monthly_envelope_fixture(%{
+        budget_id: budget.id,
+        envelope_id: envelope.id,
+        assigned_cents: 1234
+      })
+
+      {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      assert show_live |> element("#envelopes-#{envelope.id} a", "Delete") |> render_click()
+
+      refute has_element?(show_live, "#envelopes-#{envelope.id}")
+    end
   end
 end

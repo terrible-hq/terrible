@@ -32,12 +32,13 @@ defmodule TerribleWeb.BudgetLive.CategoryTest do
 
       assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}/categories/new")
 
-      {:ok, _show_live, html} =
-        show_live
-        |> form("#category-form", category: %{name: "Test New Category"})
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/books/#{book}/budgets/#{budget.name}")
+      assert show_live
+             |> form("#category-form", category: %{name: "Test New Category"})
+             |> render_submit()
 
+      assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      html = render(show_live)
       assert html =~ "Category created successfully"
       assert html =~ "Test New Category"
     end
@@ -96,12 +97,13 @@ defmodule TerribleWeb.BudgetLive.CategoryTest do
         ~p"/books/#{book}/budgets/#{budget.name}/categories/#{category}/edit"
       )
 
-      {:ok, _show_live, html} =
-        show_live
-        |> form("#category-form", category: %{name: "Different Category"})
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/books/#{book}/budgets/#{budget.name}")
+      assert show_live
+             |> form("#category-form", category: %{name: "Different Category"})
+             |> render_submit()
 
+      assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      html = render(show_live)
       assert html =~ "Category updated successfully"
       assert html =~ "Different Category"
       refute html =~ "Existing Category"

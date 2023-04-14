@@ -21,7 +21,7 @@ defmodule TerribleWeb.BookLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={{f, :name}} type="text" label="Name" />
+        <.input field={f[:name]} type="text" label="Name" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Book</.button>
         </:actions>
@@ -70,7 +70,7 @@ defmodule TerribleWeb.BookLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, message)
-         |> push_navigate(to: socket.assigns.navigate)}
+         |> push_patch(to: socket.assigns.patch)}
 
       {:error, form} ->
         {:noreply, assign(socket, :form, form)}
