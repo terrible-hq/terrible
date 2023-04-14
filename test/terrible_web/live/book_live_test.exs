@@ -38,12 +38,13 @@ defmodule TerribleWeb.BookLiveTest do
 
       assert_patch(index_live, ~p"/books/#{book}/edit")
 
-      {:ok, _, html} =
-        index_live
-        |> form("#book-form", book: @update_attrs)
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/books")
+      assert index_live
+             |> form("#book-form", book: @update_attrs)
+             |> render_submit()
 
+      assert_patch(index_live, ~p"/books")
+
+      html = render(index_live)
       assert html =~ "Book updated successfully"
       assert html =~ "Test Book Updated"
     end
@@ -82,12 +83,13 @@ defmodule TerribleWeb.BookLiveTest do
 
       assert_patch(index_live, ~p"/books/new")
 
-      {:ok, _, html} =
-        index_live
-        |> form("#book-form", book: @create_attrs)
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/books")
+      assert index_live
+             |> form("#book-form", book: @create_attrs)
+             |> render_submit()
 
+      assert_patch(index_live, ~p"/books")
+
+      html = render(index_live)
       assert html =~ "Book created successfully"
       assert html =~ "Test Book"
     end

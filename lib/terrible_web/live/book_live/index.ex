@@ -18,29 +18,27 @@ defmodule TerribleWeb.BookLive.Index do
 
     <.table
       id="books"
-      rows={@books}
-      row_click={&JS.navigate(~p"/books/#{&1}/budgets/#{@budget_name}")}
+      rows={@streams.books}
+      row_click={fn {_id, book} -> JS.navigate(~p"/books/#{book}/budgets/#{@budget_name}") end}
     >
-      <:col :let={book} label="Name"><%= book.name %></:col>
-      <:action :let={book}>
+      <:col :let={{_id, book}} label="Name"><%= book.name %></:col>
+      <:action :let={{_id, book}}>
         <div class="sr-only">
           <.link navigate={~p"/books/#{book}/budgets/#{@budget_name}"}>Show</.link>
         </div>
         <.link patch={~p"/books/#{book}/edit"}>Edit</.link>
       </:action>
-      <:action :let={book}>
-        <.link phx-click={JS.push("delete", value: %{id: book.id})} data-confirm="Are you sure?">
+      <:action :let={{id, book}}>
+        <.link
+          phx-click={JS.push("delete", value: %{id: book.id}) |> hide("##{id}")}
+          data-confirm="Are you sure?"
+        >
           Delete
         </.link>
       </:action>
     </.table>
 
-    <.modal
-      :if={@live_action in [:new, :edit]}
-      id="book-modal"
-      show
-      on_cancel={JS.navigate(~p"/books")}
-    >
+    <.modal :if={@live_action in [:new, :edit]} id="book-modal" show on_cancel={JS.patch(~p"/books")}>
       <.live_component
         module={TerribleWeb.BookLive.FormComponent}
         current_user={@current_user}
@@ -48,7 +46,7 @@ defmodule TerribleWeb.BookLive.Index do
         title={@page_title}
         action={@live_action}
         book={@book}
-        navigate={~p"/books"}
+        patch={~p"/books"}
       />
     </.modal>
     """
@@ -56,10 +54,20 @@ defmodule TerribleWeb.BookLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    books = Book.list!(socket.assigns.current_user.id)
+
     socket =
       socket
-      |> assign(:books, Book.list!(socket.assigns.current_user.id))
       |> assign(:budget_name, Utils.get_budget_name(Date.utc_today()))
+      |> stream(:books, books)
+
+    if connected?(socket) do
+      TerribleWeb.Endpoint.subscribe("books:created")
+
+      for book <- books do
+        book_subscribe(book)
+      end
+    end
 
     {:ok, socket}
   end
@@ -74,7 +82,40 @@ defmodule TerribleWeb.BookLive.Index do
     book = Book.get!(id)
     :ok = Book.destroy(book)
 
-    {:noreply, assign(socket, :books, Book.list!(socket.assigns.current_user.id))}
+    {:noreply, stream_delete(socket, :books, book)}
+  end
+
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{
+          topic: "books:created",
+          payload: %Ash.Notifier.Notification{data: %{id: id}}
+        },
+        socket
+      ) do
+    book = Book.get!(id, load: [visible_to: %{user_id: socket.assigns.current_user.id}])
+
+    if book.visible_to do
+      if connected?(socket) do
+        book_subscribe(book)
+      end
+
+      {:noreply, stream_insert(socket, :books, book)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{
+          topic: "books:updated:" <> id
+        },
+        socket
+      ) do
+    book = Book.get!(id)
+
+    {:noreply, stream_insert(socket, :books, book)}
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
@@ -93,5 +134,9 @@ defmodule TerribleWeb.BookLive.Index do
     socket
     |> assign(:page_title, "Listing Books")
     |> assign(:book, nil)
+  end
+
+  defp book_subscribe(book) do
+    TerribleWeb.Endpoint.subscribe("books:updated:#{book.id}")
   end
 end

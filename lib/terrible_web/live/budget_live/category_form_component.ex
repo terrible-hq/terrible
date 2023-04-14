@@ -20,8 +20,8 @@ defmodule TerribleWeb.BudgetLive.CategoryFormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={{f, :name}} type="text" label="Name" />
-        <.input field={{f, :book_id}} type="hidden" />
+        <.input field={f[:name]} type="text" label="Name" />
+        <.input field={f[:book_id]} type="hidden" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Category</.button>
         </:actions>
@@ -87,7 +87,7 @@ defmodule TerribleWeb.BudgetLive.CategoryFormComponent do
         socket =
           socket
           |> put_flash(:info, message)
-          |> push_navigate(to: socket.assigns.navigate)
+          |> push_patch(to: socket.assigns.patch)
 
         {:noreply, socket}
 

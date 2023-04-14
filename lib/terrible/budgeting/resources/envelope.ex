@@ -30,14 +30,6 @@ defmodule Terrible.Budgeting.Envelope do
   actions do
     defaults [:read, :update, :destroy]
 
-    read :by_id do
-      argument :id, :uuid, allow_nil?: false
-
-      get? true
-
-      filter expr(id == ^arg(:id))
-    end
-
     read :by_category_id do
       argument :category_id, :uuid, allow_nil?: false
 
@@ -61,16 +53,18 @@ defmodule Terrible.Budgeting.Envelope do
     define_for Terrible.Budgeting
     define :create
     define :read_all, action: :read
+    define :get, action: :read, get_by: [:id]
     define :update, action: :update
     define :destroy, action: :destroy
     define :list_by_category_id, args: [:category_id], action: :by_category_id
-    define :get_by_id, args: [:id], action: :by_id
   end
 
   pub_sub do
     module TerribleWeb.Endpoint
     prefix "envelopes"
 
+    publish :create, ["created"]
+    publish :update, ["updated", :id]
     publish :destroy, ["destroyed", :id]
   end
 
