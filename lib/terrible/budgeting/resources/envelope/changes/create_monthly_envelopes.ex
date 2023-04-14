@@ -12,10 +12,13 @@ defmodule Terrible.Budgeting.Envelope.Changes.CreateMonthlyEnvelopes do
     Ash.Changeset.after_action(changeset, fn _, result ->
       with {:ok, envelope} <- Budgeting.load(result, category: [book: :budgets]) do
         Enum.each(envelope.category.book.budgets, fn budget ->
-          MonthlyEnvelope.create(%{
-            envelope_id: envelope.id,
-            budget_id: budget.id
-          })
+          MonthlyEnvelope.create(
+            %{
+              envelope_id: envelope.id,
+              budget_id: budget.id
+            },
+            return_notifications?: true
+          )
         end)
       end
 
