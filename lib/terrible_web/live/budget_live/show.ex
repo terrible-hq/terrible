@@ -205,13 +205,16 @@ defmodule TerribleWeb.BudgetLive.Show do
         },
         socket
       ) do
-    category =
-      id
-      |> Envelope.get!()
-      |> Map.get(:category_id)
-      |> Category.get!(load: category_preloads(socket.assigns.budget.id))
+    with {:ok, envelope} <- Envelope.get(id),
+         {:ok, category} <-
+           Category.get(envelope.category_id, load: category_preloads(socket.assigns.budget.id)) do
+      envelope_subscribe(envelope)
 
-    {:noreply, stream_insert(socket, :categories, category)}
+      {:noreply, stream_insert(socket, :categories, category)}
+    else
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   @impl true
@@ -255,8 +258,12 @@ defmodule TerribleWeb.BudgetLive.Show do
     TerribleWeb.Endpoint.subscribe("categories:updated:#{category.id}")
 
     for envelope <- category.envelopes do
-      TerribleWeb.Endpoint.subscribe("envelopes:updated:#{envelope.id}")
-      TerribleWeb.Endpoint.subscribe("envelopes:destroyed:#{envelope.id}")
+      envelope_subscribe(envelope)
     end
+  end
+
+  defp envelope_subscribe(envelope) do
+    TerribleWeb.Endpoint.subscribe("envelopes:updated:#{envelope.id}")
+    TerribleWeb.Endpoint.subscribe("envelopes:destroyed:#{envelope.id}")
   end
 end

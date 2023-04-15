@@ -3,6 +3,8 @@ defmodule TerribleWeb.BudgetLive.EnvelopeTest do
 
   import Phoenix.LiveViewTest
 
+  alias Terrible.Budgeting.Envelope
+
   describe "New Envelope" do
     setup %{conn: conn} do
       result = register_and_log_in_user(%{conn: conn})
@@ -46,6 +48,89 @@ defmodule TerribleWeb.BudgetLive.EnvelopeTest do
       html = render(show_live)
       assert html =~ "Envelope created successfully"
       assert html =~ "Test New Envelope"
+    end
+
+    test "Creating new Envelope and then editing it updates the Envelope", %{
+      conn: conn,
+      book: book,
+      budget: budget,
+      category: category
+    } do
+      {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      assert show_live |> element("a", "New Envelope") |> render_click() =~ "Create New Envelope"
+
+      assert_patch(
+        show_live,
+        ~p"/books/#{book}/budgets/#{budget.name}/categories/#{category}/envelopes/new"
+      )
+
+      assert show_live
+             |> form("#envelope-form", envelope: %{name: "Test New Envelope"})
+             |> render_submit()
+
+      assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      html = render(show_live)
+      assert html =~ "Envelope created successfully"
+      assert html =~ "Test New Envelope"
+
+      envelope =
+        Envelope.read_all!()
+        |> Enum.at(-1)
+
+      assert show_live |> element("#envelopes-#{envelope.id} a", "Edit") |> render_click() =~
+               "Edit Envelope"
+
+      assert_patch(
+        show_live,
+        ~p"/books/#{book}/budgets/#{budget.name}/categories/#{category}/envelopes/#{envelope}/edit"
+      )
+
+      assert show_live
+             |> form("#envelope-form", envelope: %{name: "Test Updated Envelope"})
+             |> render_submit()
+
+      assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      html = render(show_live)
+      assert html =~ "Envelope updated successfully"
+      assert html =~ "Test Updated Envelope"
+      refute html =~ "Test New Envelope"
+    end
+
+    test "Creating new Envelope and then deleting it destroys the Envelope", %{
+      conn: conn,
+      book: book,
+      budget: budget,
+      category: category
+    } do
+      {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      assert show_live |> element("a", "New Envelope") |> render_click() =~ "Create New Envelope"
+
+      assert_patch(
+        show_live,
+        ~p"/books/#{book}/budgets/#{budget.name}/categories/#{category}/envelopes/new"
+      )
+
+      assert show_live
+             |> form("#envelope-form", envelope: %{name: "Test New Envelope"})
+             |> render_submit()
+
+      assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}")
+
+      html = render(show_live)
+      assert html =~ "Envelope created successfully"
+      assert html =~ "Test New Envelope"
+
+      envelope =
+        Envelope.read_all!()
+        |> Enum.at(-1)
+
+      assert show_live |> element("#envelopes-#{envelope.id} a", "Delete") |> render_click()
+
+      refute has_element?(show_live, "#envelopes-#{envelope.id}")
     end
 
     test "New Envelope form submission with blank data returns error", %{
