@@ -60,6 +60,7 @@ defmodule TerribleWeb.BudgetLive.Show do
         module={EnvelopeFormComponent}
         id={@envelope.id || :new}
         title={@form_title}
+        book={@book}
         category={@category}
         envelope={@envelope}
         patch={~p"/books/#{@book.id}/budgets/#{@budget.name}"}

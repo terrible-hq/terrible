@@ -13,7 +13,7 @@ defmodule Terrible.Budgeting.Envelope do
     data_layer: AshPostgres.DataLayer,
     notifiers: [Ash.Notifier.PubSub]
 
-  alias Terrible.Budgeting.{Category, MonthlyEnvelope}
+  alias Terrible.Budgeting.{Book, Category, MonthlyEnvelope}
   alias Terrible.Budgeting.Envelope.Changes.CreateMonthlyEnvelopes
 
   attributes do
@@ -21,6 +21,12 @@ defmodule Terrible.Budgeting.Envelope do
 
     attribute :name, :string do
       allow_nil? false
+    end
+
+    attribute :type, :atom do
+      default :standard
+
+      constraints one_of: [:standard, :unassigned]
     end
 
     create_timestamp :inserted_at
@@ -38,12 +44,17 @@ defmodule Terrible.Budgeting.Envelope do
 
     create :create do
       primary? true
-      accept [:name]
+      accept [:name, :type]
+
+      argument :book_id, :uuid do
+        allow_nil? true
+      end
 
       argument :category_id, :uuid do
         allow_nil? true
       end
 
+      change manage_relationship(:book_id, :book, type: :append)
       change manage_relationship(:category_id, :category, type: :append)
       change CreateMonthlyEnvelopes
     end
@@ -69,6 +80,10 @@ defmodule Terrible.Budgeting.Envelope do
   end
 
   relationships do
+    belongs_to :book, Book do
+      allow_nil? false
+    end
+
     belongs_to :category, Category do
       allow_nil? false
     end
@@ -81,7 +96,12 @@ defmodule Terrible.Budgeting.Envelope do
     repo Terrible.Repo
 
     references do
+      reference :book, on_delete: :delete
       reference :category, on_delete: :delete
+    end
+
+    custom_indexes do
+      index [:book_id, :type], unique: true, where: "type = 'unassigned'"
     end
   end
 end

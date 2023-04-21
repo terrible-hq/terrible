@@ -12,7 +12,10 @@ defmodule TerribleWeb.BudgetLive.EnvelopeTest do
       book_user_fixture(book, result[:user])
       budget = budget_fixture(%{book_id: book.id})
       category = category_fixture(%{book_id: book.id, name: "Bills"})
-      envelope = envelope_fixture(%{category_id: category.id, name: "Rent / Mortgage"})
+
+      envelope =
+        envelope_fixture(%{book_id: book.id, category_id: category.id, name: "Rent / Mortgage"})
+
       monthly_envelope_fixture(%{envelope_id: envelope.id, budget_id: budget.id})
 
       %{

@@ -16,6 +16,12 @@ defmodule Terrible.Budgeting.Category do
       allow_nil? false
     end
 
+    attribute :type, :atom do
+      default :standard
+
+      constraints one_of: [:standard, :system]
+    end
+
     create_timestamp :inserted_at
     update_timestamp :updated_at
   end
@@ -27,22 +33,23 @@ defmodule Terrible.Budgeting.Category do
       argument :id, :uuid, allow_nil?: false
 
       filter expr(book_id == ^arg(:id))
+      filter expr(type == ^:standard)
     end
 
     create :create do
       primary? true
-      accept [:name]
+      accept [:name, :type]
 
       argument :book_id, :uuid do
         allow_nil? false
       end
 
-      argument :envelopes, {:array, :string} do
+      argument :envelopes, {:array, :map} do
         allow_nil? true
       end
 
       change manage_relationship(:book_id, :book, type: :append)
-      change manage_relationship(:envelopes, type: :create, value_is_key: :name)
+      change manage_relationship(:envelopes, type: :create)
     end
   end
 
@@ -79,6 +86,10 @@ defmodule Terrible.Budgeting.Category do
 
     references do
       reference :book, on_delete: :delete
+    end
+
+    custom_indexes do
+      index [:book_id, :type], unique: true, where: "type = 'system'"
     end
   end
 end
