@@ -59,7 +59,8 @@ defmodule Terrible.BudgetingFixtures do
     attrs =
       Enum.into(attrs, %{
         name: "Category #{System.unique_integer([:positive])}}",
-        book_id: book_id
+        book_id: book_id,
+        type: :standard
       })
 
     Ash.Seed.seed!(Category, attrs)
@@ -69,12 +70,15 @@ defmodule Terrible.BudgetingFixtures do
   Generate an Envelope.
   """
   def envelope_fixture(attrs \\ %{}) do
+    book_id = Map.get(attrs, :book_id) || book_fixture().id
     category_id = Map.get(attrs, :category_id) || category_fixture().id
 
     attrs =
       Enum.into(attrs, %{
         name: "Envelope #{System.unique_integer([:positive])}}",
-        category_id: category_id
+        book_id: book_id,
+        category_id: category_id,
+        type: :standard
       })
 
     Ash.Seed.seed!(Envelope, attrs)

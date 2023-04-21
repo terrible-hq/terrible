@@ -21,6 +21,7 @@ defmodule TerribleWeb.BudgetLive.EnvelopeFormComponent do
         phx-submit="save"
       >
         <.input field={f[:name]} type="text" label="Name" />
+        <.input field={f[:book_id]} type="hidden" />
         <.input field={f[:category_id]} type="hidden" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Envelope</.button>
@@ -31,7 +32,7 @@ defmodule TerribleWeb.BudgetLive.EnvelopeFormComponent do
   end
 
   @impl true
-  def update(%{category: category, envelope: envelope} = assigns, socket) do
+  def update(%{book: book, category: category, envelope: envelope} = assigns, socket) do
     form =
       if envelope.id do
         AshPhoenix.Form.for_action(
@@ -47,7 +48,9 @@ defmodule TerribleWeb.BudgetLive.EnvelopeFormComponent do
           as: "envelope",
           api: Budgeting,
           prepare_source: fn changeset ->
-            Ash.Changeset.set_argument(changeset, :category_id, category.id)
+            changeset
+            |> Ash.Changeset.set_argument(:book_id, book.id)
+            |> Ash.Changeset.set_argument(:category_id, category.id)
           end
         )
       end
@@ -71,7 +74,9 @@ defmodule TerribleWeb.BudgetLive.EnvelopeFormComponent do
            socket.assigns.form,
            params: envelope_params,
            before_submit: fn changeset ->
-             Ash.Changeset.set_argument(changeset, :category_id, socket.assigns.category.id)
+             changeset
+             |> Ash.Changeset.set_argument(:book_id, socket.assigns.book.id)
+             |> Ash.Changeset.set_argument(:category_id, socket.assigns.category.id)
            end
          ) do
       {:ok, _envelope} ->

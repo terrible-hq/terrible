@@ -8,51 +8,6 @@ defmodule Terrible.Budgeting.Book.Changes.CreateRelatedRecords do
   alias Terrible.Budgeting.{BookUser, Budget, Category}
   alias Terrible.Utils
 
-  @list_of_categories_and_envelopes [
-    %{
-      category: "Bills",
-      envelopes: [
-        "Rent / Mortgage",
-        "Electric",
-        "Water",
-        "Internet",
-        "Cellphone"
-      ]
-    },
-    %{
-      category: "Frequent",
-      envelopes: [
-        "Groceries",
-        "Eating Out",
-        "Transportation"
-      ]
-    },
-    %{
-      category: "Non-Monthly",
-      envelopes: [
-        "Home Maintenance",
-        "Auto Maintenance",
-        "Gifts"
-      ]
-    },
-    %{
-      category: "Goals",
-      envelopes: [
-        "Vacation",
-        "Education",
-        "Home Improvement"
-      ]
-    },
-    %{
-      category: "Quality of Life",
-      envelopes: [
-        "Hobbies",
-        "Entertainment",
-        "Health & Wellness"
-      ]
-    }
-  ]
-
   def change(changeset, _opts, %{actor: actor}) do
     Ash.Changeset.after_action(changeset, fn _, result ->
       create_book_owner(result.id, actor.id)
@@ -91,15 +46,68 @@ defmodule Terrible.Budgeting.Book.Changes.CreateRelatedRecords do
   end
 
   defp create_categories(book_id) do
-    Enum.map(@list_of_categories_and_envelopes, fn content ->
-      Category.create!(
-        %{
-          book_id: book_id,
-          name: content[:category],
-          envelopes: content[:envelopes]
-        },
-        return_notifications?: true
-      )
+    Enum.map(default_categories_and_envelopes_list(book_id), fn content ->
+      Category.create!(content, return_notifications?: true)
     end)
+  end
+
+  def default_categories_and_envelopes_list(book_id) do
+    [
+      %{
+        name: "System",
+        book_id: book_id,
+        type: :system,
+        envelopes: [
+          %{name: "Ready to Assign", book_id: book_id, type: :unassigned}
+        ]
+      },
+      %{
+        name: "Bills",
+        book_id: book_id,
+        envelopes: [
+          %{name: "Rent / Mortgage", book_id: book_id},
+          %{name: "Electric", book_id: book_id},
+          %{name: "Water", book_id: book_id},
+          %{name: "Internet", book_id: book_id},
+          %{name: "Cellphone", book_id: book_id}
+        ]
+      },
+      %{
+        name: "Frequent",
+        book_id: book_id,
+        envelopes: [
+          %{name: "Groceries", book_id: book_id},
+          %{name: "Eating Out", book_id: book_id},
+          %{name: "Transportation Out", book_id: book_id}
+        ]
+      },
+      %{
+        name: "Non-Monthly",
+        book_id: book_id,
+        envelopes: [
+          %{name: "Home Maintenance", book_id: book_id},
+          %{name: "Auto Maintenance", book_id: book_id},
+          %{name: "Gifts", book_id: book_id}
+        ]
+      },
+      %{
+        name: "Goals",
+        book_id: book_id,
+        envelopes: [
+          %{name: "Vacation", book_id: book_id},
+          %{name: "Education", book_id: book_id},
+          %{name: "Home Improvement", book_id: book_id}
+        ]
+      },
+      %{
+        name: "Quality of Life",
+        book_id: book_id,
+        envelopes: [
+          %{name: "Hobbies", book_id: book_id},
+          %{name: "Entertainment", book_id: book_id},
+          %{name: "Health & Wellness", book_id: book_id}
+        ]
+      }
+    ]
   end
 end
