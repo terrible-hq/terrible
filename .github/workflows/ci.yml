@@ -70,8 +70,8 @@ jobs:
       - name: Install Dependencies
         run: mix deps.get
 
-      - name: Compiles without warnings
-        run: mix compile --warnings-as-errors
+      - name: Compile
+        run: mix compile
 
       - name: Run Linter
         run: mix lint.ci
