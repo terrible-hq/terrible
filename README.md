@@ -1,7 +1,7 @@
 # Terrible
 
 [![gh-actions](https://github.com/terrible-hq/terrible/workflows/Continuous%20Integration/badge.svg)](https://github.com/terrible-hq/terrible/actions?workflow=Continuous+Integration)
-[![Coverage Status](https://coveralls.io/repos/github/terrible-hq/terrible/badge.svg?branch=main)](https://coveralls.io/github/terrible-hq/terrible?branch=main)
+[![codecov](https://codecov.io/gh/terrible-hq/terrible/branch/main/graph/badge.svg?token=GEA2W8NQ50)](https://codecov.io/gh/terrible-hq/terrible)
 
 To start your Phoenix server:
 
