@@ -32,8 +32,7 @@ defmodule Terrible.Budgeting.Category do
     read :by_book_id do
       argument :id, :uuid, allow_nil?: false
 
-      filter expr(book_id == ^arg(:id))
-      filter expr(type == ^:standard)
+      filter expr(book_id == ^arg(:id) and type == ^:standard)
     end
 
     create :create do
