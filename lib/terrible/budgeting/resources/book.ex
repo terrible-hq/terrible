@@ -67,9 +67,11 @@ defmodule Terrible.Budgeting.Book do
   relationships do
     has_many :budgets, Budget
     has_many :categories, Category
+    has_many :book_users, BookUser
 
     many_to_many :users, User do
       through BookUser
+      join_relationship :book_users
       api Terrible.Authentication
       source_attribute_on_join_resource :book_id
       destination_attribute_on_join_resource :user_id
