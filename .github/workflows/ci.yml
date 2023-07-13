@@ -77,4 +77,9 @@ jobs:
         run: mix lint.ci
 
       - name: Run Tests
-        run: mix coveralls.github
+        run: mix coveralls.json
+
+      - name: Upload Coverage Report to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
