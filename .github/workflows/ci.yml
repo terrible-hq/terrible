@@ -6,8 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: ['25.3']
-        elixir: ['1.14.4']
+        otp: ['26.0.2']
+        elixir: ['1.15.2']
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,8 +50,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: ['25.3']
-        elixir: ['1.14.4']
+        otp: ['26.0.2']
+        elixir: ['1.15.2']
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
