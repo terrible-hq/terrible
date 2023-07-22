@@ -25,6 +25,7 @@ defmodule Terrible.DataCase do
       import Ecto.Query
       import Terrible.DataCase
 
+      import Terrible.AccountingFixtures
       import Terrible.AuthenticationFixtures
       import Terrible.BudgetingFixtures
     end

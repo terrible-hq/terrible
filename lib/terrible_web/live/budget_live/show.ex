@@ -100,6 +100,10 @@ defmodule TerribleWeb.BudgetLive.Show do
         TerribleWeb.Endpoint.subscribe("categories:created")
         TerribleWeb.Endpoint.subscribe("envelopes:created")
 
+        for account <- accounts do
+          account_subscribe(account)
+        end
+
         for category <- categories do
           category_subscribe(category)
         end
@@ -246,7 +250,7 @@ defmodule TerribleWeb.BudgetLive.Show do
       ) do
     account = Account.get!(id)
 
-    {:noreply, stream_insert(socket, :accounts, account)}
+    {:noreply, stream_insert(socket, :accounts, account, at: -1)}
   end
 
   @impl true

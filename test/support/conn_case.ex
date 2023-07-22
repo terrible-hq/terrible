@@ -29,6 +29,7 @@ defmodule TerribleWeb.ConnCase do
       import Phoenix.ConnTest
       import TerribleWeb.ConnCase
 
+      import Terrible.AccountingFixtures
       import Terrible.AuthenticationFixtures
       import Terrible.BudgetingFixtures
       import TerribleWeb.AuthenticationTestHelpers
