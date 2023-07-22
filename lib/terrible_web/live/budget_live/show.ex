@@ -6,7 +6,12 @@ defmodule TerribleWeb.BudgetLive.Show do
   alias Terrible.Accounting.{Account, AccountType}
   alias Terrible.Budgeting.{Book, Budget, Category, Envelope, MonthlyEnvelope}
   alias TerribleWeb.BudgetComponents
-  alias TerribleWeb.BudgetLive.{AccountFormComponent, CategoryFormComponent, EnvelopeFormComponent}
+
+  alias TerribleWeb.BudgetLive.{
+    AccountFormComponent,
+    CategoryFormComponent,
+    EnvelopeFormComponent
+  }
 
   @impl true
   def render(assigns) do

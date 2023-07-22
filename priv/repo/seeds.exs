@@ -30,7 +30,7 @@ account_type_attrs = [
   %{
     name: "Line of Credit",
     type: :liability
-  },
+  }
 ]
 
 Enum.each(account_type_attrs, fn attrs ->

@@ -33,7 +33,9 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
       assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}/accounts/new")
 
       assert show_live
-             |> form("#account-form", account: %{name: "Test New Account", account_type_id: account_type.id})
+             |> form("#account-form",
+               account: %{name: "Test New Account", account_type_id: account_type.id}
+             )
              |> render_submit()
 
       assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}")
@@ -81,7 +83,12 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
       budget: budget,
       account_type: account_type
     } do
-      account = account_fixture(%{name: "Existing Account", book_id: book.id, account_type_id: account_type.id})
+      account =
+        account_fixture(%{
+          name: "Existing Account",
+          book_id: book.id,
+          account_type_id: account_type.id
+        })
 
       {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
 
@@ -111,7 +118,12 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
       budget: budget,
       account_type: account_type
     } do
-      account = account_fixture(%{name: "Existing Account", book_id: book.id, account_type_id: account_type.id})
+      account =
+        account_fixture(%{
+          name: "Existing Account",
+          book_id: book.id,
+          account_type_id: account_type.id
+        })
 
       {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
 
@@ -147,7 +159,12 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
       budget: budget,
       account_type: account_type
     } do
-      account = account_fixture(%{name: "Existing Account", book_id: book.id, account_type_id: account_type.id})
+      account =
+        account_fixture(%{
+          name: "Existing Account",
+          book_id: book.id,
+          account_type_id: account_type.id
+        })
 
       {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
 

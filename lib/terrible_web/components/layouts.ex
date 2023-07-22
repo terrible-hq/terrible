@@ -25,15 +25,14 @@ defmodule TerribleWeb.Layouts do
           </nav>
         </div>
         <div>
-          <.link patch={~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/new"}>
+          <.link patch={
+            ~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/new"
+          }>
             <.button>New Account</.button>
           </.link>
         </div>
         <div id="account-list" phx-update="stream">
-          <div
-            :for={{id, account} <- @accounts}
-            id={id}
-          >
+          <div :for={{id, account} <- @accounts} id={id}>
             <%= account.name %>
             <.link
               patch={
