@@ -25,7 +25,7 @@ defmodule TerribleWeb.Layouts do
           </nav>
         </div>
         <div>
-          <.link patch={~p"/books/#{@book}/accounts/new"}>
+          <.link patch={~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/new"}>
             <.button>New Account</.button>
           </.link>
         </div>
@@ -37,7 +37,7 @@ defmodule TerribleWeb.Layouts do
             <%= account.name %>
             <.link
               patch={
-                ~p"/books/#{@book}/accounts/#{account}/edit"
+                ~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/#{account}/edit"
               }
               class="text-indigo-600 hover:text-indigo-900"
             >

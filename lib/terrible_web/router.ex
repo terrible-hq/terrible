@@ -48,9 +48,9 @@ defmodule TerribleWeb.Router do
       session: {AshAuthentication.Phoenix.LiveSession, :generate_session, []} do
       live "/books/:book_id/budgets/:name", BudgetLive.Show, :show
 
-      live "/books/:book_id/accounts/new", BudgetLive.Show, :new_account
+      live "/books/:book_id/budgets/:name/accounts/new", BudgetLive.Show, :new_account
 
-      live "/books/:book_id/accounts/:account_id/edit",
+      live "/books/:book_id/budgets/:name/accounts/:account_id/edit",
            BudgetLive.Show,
            :edit_account
 

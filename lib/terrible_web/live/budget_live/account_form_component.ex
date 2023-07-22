@@ -23,6 +23,7 @@ defmodule TerribleWeb.BudgetLive.AccountFormComponent do
         <.input field={f[:name]} type="text" label="Name" />
 
         <.input
+          :if={@form.action == :create}
           label="Account Type"
           field={f[:account_type_id]}
           type="select"
