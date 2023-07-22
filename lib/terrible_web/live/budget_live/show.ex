@@ -3,9 +3,10 @@ defmodule TerribleWeb.BudgetLive.Show do
 
   require Ash.Query
 
+  alias Terrible.Accounting.{Account, AccountType}
   alias Terrible.Budgeting.{Book, Budget, Category, Envelope, MonthlyEnvelope}
   alias TerribleWeb.BudgetComponents
-  alias TerribleWeb.BudgetLive.{CategoryFormComponent, EnvelopeFormComponent}
+  alias TerribleWeb.BudgetLive.{AccountFormComponent, CategoryFormComponent, EnvelopeFormComponent}
 
   @impl true
   def render(assigns) do
@@ -33,6 +34,23 @@ defmodule TerribleWeb.BudgetLive.Show do
         </div>
       </div>
     </div>
+
+    <.modal
+      :if={@live_action in [:new_account, :edit_account]}
+      id="account-modal"
+      show
+      on_cancel={JS.patch(~p"/books/#{@book}/budgets/#{@budget.name}")}
+    >
+      <.live_component
+        module={AccountFormComponent}
+        id={@account.id || :new}
+        title={@form_title}
+        book={@book}
+        account={@account}
+        account_types={@account_types}
+        patch={~p"/books/#{@book.id}/budgets/#{@budget.name}"}
+      />
+    </.modal>
 
     <.modal
       :if={@live_action in [:new_category, :edit_category]}
@@ -73,9 +91,12 @@ defmodule TerribleWeb.BudgetLive.Show do
   def mount(params, _session, socket) do
     with {:ok, book} <- Book.get(params["book_id"]),
          {:ok, budget} <- Budget.get_by_book_id_and_name(book.id, params["name"]) do
+      accounts = Account.list_by_book_id!(book.id)
+      account_types = AccountType.list!()
       categories = Category.list_by_book_id!(book.id, load: category_preloads(budget.id))
 
       if connected?(socket) do
+        TerribleWeb.Endpoint.subscribe("accounts:created")
         TerribleWeb.Endpoint.subscribe("categories:created")
         TerribleWeb.Endpoint.subscribe("envelopes:created")
 
@@ -88,9 +109,12 @@ defmodule TerribleWeb.BudgetLive.Show do
        socket
        |> assign(:book, book)
        |> assign(:budget, budget)
+       |> assign(:account_types, account_types)
+       |> stream(:accounts, accounts)
        |> stream(:categories, categories)
        |> assign(:category, nil)
-       |> assign(:envelope, nil)}
+       |> assign(:envelope, nil)
+       |> assign(:account, nil)}
     else
       _ ->
         {:ok, socket}
@@ -105,8 +129,27 @@ defmodule TerribleWeb.BudgetLive.Show do
   defp apply_action(socket, :show, _params) do
     socket
     |> assign(:page_title, "Budget | #{socket.assigns.book.name}")
+    |> assign(:account, nil)
     |> assign(:category, nil)
     |> assign(:envelope, nil)
+  end
+
+  defp apply_action(socket, :new_account, _params) do
+    socket
+    |> assign(:page_title, "New Account | #{socket.assigns.book.name}")
+    |> assign(:form_title, "Create New Account")
+    |> assign(:account, %Account{})
+  end
+
+  defp apply_action(socket, :edit_account, %{
+         "account_id" => account_id
+       }) do
+    account = Account.get!(account_id)
+
+    socket
+    |> assign(:page_title, "Edit Account | #{socket.assigns.book.name}")
+    |> assign(:form_title, "Edit Account")
+    |> assign(:account, account)
   end
 
   defp apply_action(socket, :new_category, _params) do
@@ -154,6 +197,14 @@ defmodule TerribleWeb.BudgetLive.Show do
   end
 
   @impl true
+  def handle_event("delete_account", %{"id" => id}, socket) do
+    account = Account.get!(id)
+    :ok = Account.destroy(account)
+
+    {:noreply, stream_delete(socket, :accounts, account)}
+  end
+
+  @impl true
   def handle_event("delete_category", %{"id" => id}, socket) do
     category = Category.get!(id)
     :ok = Category.destroy(category)
@@ -167,6 +218,35 @@ defmodule TerribleWeb.BudgetLive.Show do
     :ok = Envelope.destroy(envelope)
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{
+          topic: "accounts:created",
+          payload: %Ash.Notifier.Notification{data: %{id: id}}
+        },
+        socket
+      ) do
+    account = Account.get!(id)
+
+    if connected?(socket) do
+      account_subscribe(account)
+    end
+
+    {:noreply, stream_insert(socket, :accounts, account)}
+  end
+
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{
+          topic: "accounts:updated:" <> id
+        },
+        socket
+      ) do
+    account = Account.get!(id)
+
+    {:noreply, stream_insert(socket, :accounts, account)}
   end
 
   @impl true
@@ -253,6 +333,10 @@ defmodule TerribleWeb.BudgetLive.Show do
         monthly_envelopes: Ash.Query.filter(MonthlyEnvelope, budget_id == ^budget_id)
       ]
     ]
+  end
+
+  defp account_subscribe(account) do
+    TerribleWeb.Endpoint.subscribe("accounts:updated:#{account.id}")
   end
 
   defp category_subscribe(category) do

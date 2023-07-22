@@ -24,6 +24,34 @@ defmodule TerribleWeb.Layouts do
             </.link>
           </nav>
         </div>
+        <div>
+          <.link patch={~p"/books/#{@book}/accounts/new"}>
+            <.button>New Account</.button>
+          </.link>
+        </div>
+        <div id="account-list" phx-update="stream">
+          <div
+            :for={{id, account} <- @accounts}
+            id={id}
+          >
+            <%= account.name %>
+            <.link
+              patch={
+                ~p"/books/#{@book}/accounts/#{account}/edit"
+              }
+              class="text-indigo-600 hover:text-indigo-900"
+            >
+              Edit
+            </.link>
+            <.link
+              class="delete-account text-indigo-600 hover:text-indigo-900"
+              phx-click={JS.push("delete_account", value: %{id: account.id}) |> hide("##{id}")}
+              data-confirm="Are you sure?"
+            >
+              Delete
+            </.link>
+          </div>
+        </div>
       </div>
     </div>
     """
