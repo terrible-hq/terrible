@@ -8,11 +8,12 @@ defmodule TerribleWeb.Layouts do
   embed_templates "layouts/*"
 
   def sidebar_item_class(active) do
-    active_class = if active do
-      "bg-indigo-700 text-white"
-    else
-      "text-indigo-200 hover:text-white hover:bg-indigo-700"
-    end
+    active_class =
+      if active do
+        "bg-indigo-700 text-white"
+      else
+        "text-indigo-200 hover:text-white hover:bg-indigo-700"
+      end
 
     "#{active_class} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
   end
@@ -20,6 +21,7 @@ defmodule TerribleWeb.Layouts do
   attr :account, :any, required: true
   attr :book, :any, required: true
   attr :budget, :any, required: true
+
   def account_item(assigns) do
     ~H"""
     <li>
@@ -38,7 +40,9 @@ defmodule TerribleWeb.Layouts do
           </.link>
           <.link
             class="delete-account"
-            phx-click={JS.push("delete_account", value: %{id: @account.id}) |> hide("#accounts-#{@account.id}")}
+            phx-click={
+              JS.push("delete_account", value: %{id: @account.id}) |> hide("#accounts-#{@account.id}")
+            }
             data-confirm="Are you sure?"
           >
             <span class="sr-only">Delete Account - <%= @account.name %></span>
@@ -47,10 +51,7 @@ defmodule TerribleWeb.Layouts do
             </span>
           </.link>
         </div>
-        <.link
-          navigate={~p"/books/#{@book}/budgets/#{@budget.name}"}
-          aria-current="false"
-        >
+        <.link navigate={~p"/books/#{@book}/budgets/#{@budget.name}"} aria-current="false">
           <span class="sr-only">View Account - <%= @account.name %></span>
           <span class="truncate"><%= @account.name %></span>
         </.link>
@@ -87,22 +88,17 @@ defmodule TerribleWeb.Layouts do
             <div class="flex justify-between">
               <div class="text-xs font-semibold leading-6 text-indigo-200">Your Accounts</div>
               <div class="text-xs font-semibold leading-6 text-indigo-200 hover:text-white">
-                <.link patch={~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/new"}>
+                <.link patch={
+                  ~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/new"
+                }>
                   Add Account
                 </.link>
               </div>
             </div>
             <ul role="list" class="-mx-2 mt-2 space-y-1">
               <div id="account-list" phx-update="stream">
-                <div
-                  :for={{id, account} <- @accounts}
-                  id={id}
-                >
-                  <.account_item
-                    account={account}
-                    book={@book}
-                    budget={@budget}
-                  />
+                <div :for={{id, account} <- @accounts} id={id}>
+                  <.account_item account={account} book={@book} budget={@budget} />
                 </div>
               </div>
             </ul>
