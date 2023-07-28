@@ -7,51 +7,104 @@ defmodule TerribleWeb.Layouts do
 
   embed_templates "layouts/*"
 
-  def sidebar(assigns) do
+  def sidebar_item_class(active) do
+    active_class =
+      if active do
+        "bg-indigo-700 text-white"
+      else
+        "text-indigo-200 hover:text-white hover:bg-indigo-700"
+      end
+
+    "#{active_class} group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+  end
+
+  attr :account, :any, required: true
+  attr :book, :any, required: true
+  attr :budget, :any, required: true
+
+  def account_item(assigns) do
     ~H"""
-    <div class="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-      <div class="flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white">
-        <div class="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
-          <nav class="mt-5 flex-1 space-y-1 bg-white px-2">
-            <.link
-              navigate={~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}"}
-              class={
-                "group flex items-center rounded-md px-2 py-2 text-sm font-medium #{if @active_nav_item == :budget, do: "bg-gray-100 text-gray-900", else: "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}"
-              }
-              aria-current={if @active_nav_item == :budget, do: "true", else: "false"}
-            >
-              <Heroicons.inbox outline class="text-gray-500 mr-4 h-6 w-6 flex-shrink-0" /> Budget
-            </.link>
-          </nav>
-        </div>
-        <div>
-          <.link patch={
-            ~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/new"
-          }>
-            <.button>New Account</.button>
+    <li>
+      <div class={sidebar_item_class(false)}>
+        <div class="flex justify-center items-center">
+          <.link
+            patch={
+              ~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/#{@account}/edit"
+            }
+            class="edit-account"
+          >
+            <span class="sr-only">Edit Account - <%= @account.name %></span>
+            <span class="flex h-3 w-3 shrink-0 items-center justify-center font-medium text-indigo-600 hover:text-white">
+              <Heroicons.pencil mini />
+            </span>
+          </.link>
+          <.link
+            class="delete-account"
+            phx-click={
+              JS.push("delete_account", value: %{id: @account.id}) |> hide("#accounts-#{@account.id}")
+            }
+            data-confirm="Are you sure?"
+          >
+            <span class="sr-only">Delete Account - <%= @account.name %></span>
+            <span class="flex h-3 w-3 shrink-0 items-center justify-center font-medium text-indigo-600 hover:text-white">
+              <Heroicons.minus_circle mini />
+            </span>
           </.link>
         </div>
-        <div id="account-list" phx-update="stream">
-          <div :for={{id, account} <- @accounts} id={id}>
-            <%= account.name %>
-            <.link
-              patch={
-                ~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/#{account}/edit"
-              }
-              class="text-indigo-600 hover:text-indigo-900"
-            >
-              Edit
-            </.link>
-            <.link
-              class="delete-account text-indigo-600 hover:text-indigo-900"
-              phx-click={JS.push("delete_account", value: %{id: account.id}) |> hide("##{id}")}
-              data-confirm="Are you sure?"
-            >
-              Delete
-            </.link>
-          </div>
-        </div>
+        <.link navigate={~p"/books/#{@book}/budgets/#{@budget.name}"} aria-current="false">
+          <span class="sr-only">View Account - <%= @account.name %></span>
+          <span class="truncate"><%= @account.name %></span>
+        </.link>
+        <span class="justify-right flex-grow text-right">
+          $999,999.99
+        </span>
       </div>
+    </li>
+    """
+  end
+
+  def sidebar(assigns) do
+    ~H"""
+    <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-indigo-600 px-6 pb-2">
+      <div class="flex h-16 shrink-0 justify-center items-center">
+        <span class="text-white font-semibold"><%= @book.name %></span>
+      </div>
+      <nav class="flex flex-1 flex-col">
+        <ul role="list" class="flex flex-1 flex-col gap-y-7">
+          <li>
+            <ul role="list" class="-mx-2 space-y-1">
+              <li>
+                <.link
+                  navigate={~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}"}
+                  class={sidebar_item_class(@active_nav_item == :budget)}
+                  aria-current={if @active_nav_item == :budget, do: "true", else: "false"}
+                >
+                  <Heroicons.inbox class="text-white h-6 w-6 flex-shrink-0" /> Budget
+                </.link>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <div class="flex justify-between">
+              <div class="text-xs font-semibold leading-6 text-indigo-200">Your Accounts</div>
+              <div class="text-xs font-semibold leading-6 text-indigo-200 hover:text-white">
+                <.link patch={
+                  ~p"/books/#{@book}/budgets/#{Utils.get_budget_name(Date.utc_today())}/accounts/new"
+                }>
+                  Add Account
+                </.link>
+              </div>
+            </div>
+            <ul role="list" class="-mx-2 mt-2 space-y-1">
+              <div id="account-list" phx-update="stream">
+                <div :for={{id, account} <- @accounts} id={id}>
+                  <.account_item account={account} book={@book} budget={@budget} />
+                </div>
+              </div>
+            </ul>
+          </li>
+        </ul>
+      </nav>
     </div>
     """
   end
