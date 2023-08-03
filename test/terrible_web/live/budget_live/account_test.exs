@@ -28,8 +28,7 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
     } do
       {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
 
-      assert show_live |> element("#sidebar-desktop a", "Add Account") |> render_click() =~
-               "Create New Account"
+      assert show_live |> element("a", "New Account") |> render_click() =~ "Create New Account"
 
       assert_patch(show_live, ~p"/books/#{book}/budgets/#{budget.name}/accounts/new")
 
@@ -53,8 +52,7 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
     } do
       {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
 
-      assert show_live |> element("#sidebar-desktop a", "Add Account") |> render_click() =~
-               "Create New Account"
+      assert show_live |> element("a", "New Account") |> render_click() =~ "Create New Account"
 
       assert show_live
              |> form("#account-form", account: %{name: ""})
@@ -94,12 +92,7 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
 
       {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
 
-      assert show_live
-             |> element(
-               "#sidebar-desktop #accounts-#{account.id} a",
-               "Edit Account - #{account.name}"
-             )
-             |> render_click() =~
+      assert show_live |> element("#accounts-#{account.id} a", "Edit") |> render_click() =~
                "Edit Account"
 
       assert_patch(
@@ -134,9 +127,7 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
 
       {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
 
-      assert show_live
-             |> element("#sidebar-desktop #accounts-#{account.id} a", "Edit")
-             |> render_click() =~
+      assert show_live |> element("#accounts-#{account.id} a", "Edit") |> render_click() =~
                "Edit Account"
 
       assert show_live
@@ -177,9 +168,7 @@ defmodule TerribleWeb.BudgetLive.AccountTest do
 
       {:ok, show_live, _html} = live(conn, ~p"/books/#{book}/budgets/#{budget.name}")
 
-      assert show_live
-             |> element("#sidebar-desktop #accounts-#{account.id} a", "Delete")
-             |> render_click()
+      assert show_live |> element("#accounts-#{account.id} a", "Delete") |> render_click()
 
       refute has_element?(show_live, "#accounts-#{account.id}")
     end
