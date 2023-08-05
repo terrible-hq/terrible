@@ -1,4 +1,6 @@
 defmodule TerribleWeb.SidebarComponent do
+  @moduledoc false
+
   use TerribleWeb, :live_component
 
   alias Terrible.Utils
@@ -66,7 +68,8 @@ defmodule TerribleWeb.SidebarComponent do
                         <.link
                           class="delete-account"
                           phx-click={
-                            JS.push("delete_account", value: %{id: account.id}) |> hide("#accounts-#{account.id}")
+                            JS.push("delete_account", value: %{id: account.id})
+                            |> hide("#accounts-#{account.id}")
                           }
                           data-confirm="Are you sure?"
                         >
@@ -76,7 +79,10 @@ defmodule TerribleWeb.SidebarComponent do
                           </span>
                         </.link>
                       </div>
-                      <.link navigate={~p"/books/#{@book}/budgets/#{@budget.name}"} aria-current="false">
+                      <.link
+                        navigate={~p"/books/#{@book}/budgets/#{@budget.name}"}
+                        aria-current="false"
+                      >
                         <span class="sr-only">View Account - <%= account.name %></span>
                         <span class="truncate"><%= account.name %></span>
                       </.link>
